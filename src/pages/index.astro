@@ -1,14 +1,16 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import Eventos from '../components/Eventos.astro';
-import Contactos from '../components/Contactos.astro';
+import Layout from '@/layouts/Layout.astro';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import Home from '@/components/Home.astro';
 ---
 
-<Layout>
-  <Header />
-  <Eventos />
-  <Contactos />
-  <Footer />
+<Layout
+  title='Usuarios Libres de Esquel (ULE)'
+>
+  <section class="grid grid-rows-[auto_1fr_auto] h-dvh font-ubuntu">
+    <Header />
+    <Home />
+    <Footer />
+  </section>
 </Layout>
