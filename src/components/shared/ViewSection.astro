@@ -7,7 +7,7 @@ interface Props {
 const { title, className } = Astro.props
 ---
 
-<section class:list={["flex flex-col w-full items-center justify-center", className]}>
+<section class:list={["flex flex-col w-full items-center justify-center my-3", className]}>
   <h2 class="text-center font-bold text-3xl text-ule">{title}</h2>
   <slot />
 </section>
