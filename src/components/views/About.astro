@@ -1,9 +1,18 @@
 ---
 import ViewSection from '@/components/shared/ViewSection.astro'
+import InfoCard from '@/components/shared/InfoCard.astro'
 ---
 
 <ViewSection
   title="¿Qué es ULE?"
-  >
-  Mmmm software libre...
+  className="gap-4 px-6"
+>
+<section class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(170px,1fr))]">
+    <InfoCard description="Usuarios Libres de Esquel es un grupo de jóvenes que buscan promover el uso del Software y Hardware libre"/>
+    <InfoCard description="Usuarios Libres de Esquel es un grupo de jóvenes que buscan promover el uso del Software y Hardware libre"/>
+    <InfoCard description="Usuarios Libres de Esquel es un grupo de jóvenes que buscan promover el uso del Software y Hardware libre"/>
+    <InfoCard description="Usuarios Libres de Esquel es un grupo de jóvenes que buscan promover el uso del Software y Hardware libre"/>
+    <InfoCard description="Usuarios Libres de Esquel es un grupo de jóvenes que buscan promover el uso del Software y Hardware libre"/>
+    <InfoCard description="Usuarios Libres de Esquel es un grupo de jóvenes que buscan promover el uso del Software y Hardware libre"/>
+  </section>
 </ViewSection>
