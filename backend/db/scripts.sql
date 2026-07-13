@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS fests (
   id_fest TEXT PRIMARY KEY NOT NULL UNIQUE,
-  frequency TEXT CHECK(frequency IN ('daily', 'weekly', 'biweekly', 'monthly')) NOT NULL,
-  fest_type TEXT CHECK(frequency IN ('event', 'workshop', 'competition')) NOT NULL,
+  frequency TEXT  NOT NULL CHECK(frequency IN ('daily', 'weekly', 'biweekly', 'monthly')),
+  fest_type TEXT NOT NULL CHECK(fest_type IN ('event', 'workshop', 'competition')),
   name VARCHAR(128) NOT NULL,
   objective VARCHAR(128) NOT NULL,
   description VARCHAR(512) NOT NULL,

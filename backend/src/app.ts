@@ -1,13 +1,15 @@
 import express from 'express'
 import cors from 'cors'
 import path from 'node:path'
-import multer from 'multer'
-// import { SqliteModel } from '@/model/sqlite.js'
+import { SqliteModel } from '@/model/sqlite.js'
+import { upload } from '@/middlewares/multer.js'
+import cloudinaryConfig from '@/middlewares/cloudinary.js'
+import { BadRequestError, DatabaseConnectionError } from '@/errors/errors.js'
 
 const PORT = 3000
 const app = express()
 const __dirname = path.resolve()
-const upload = multer()
+const isOnDev = process.env?.['DEV'] ?? false
 
 app.use(
   cors({
@@ -17,19 +19,44 @@ app.use(
 )
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
+app.use(cloudinaryConfig)
 app.get('/', (_, res) => {
   res.sendFile(path.join(__dirname, 'index.html'))
 })
 
-app.post('/fests', upload.single('img'), (req, res) => {
+app.post('/fests', upload, (req, res) => {
   const fest = req.body
-  const file = req.file
-  // const info = SqliteModel.insertEvent(fest)
-  console.log(fest, file)
-  res.json({ msg: 'Request getted' })
+  const img = req.file
+
+  if (!img || typeof img === 'undefined')
+    return res
+      .status(400)
+      .json({ message: 'Pasá una imagen como portada de la jornada' })
+
+  const uriImage = `data:${img?.mimetype};base64,${img?.buffer.toString('base64')}`
+  const info = SqliteModel.insertEvent(fest, uriImage)
+  info
+    .then((info) =>
+      res.status(201).json({
+        info,
+      }),
+    )
+    .catch((error) => {
+      if (BadRequestError.isError(error))
+        return res.status(400).json({
+          message: error.message,
+        })
+      if (DatabaseConnectionError.isError(error))
+        return res.status(503).json({
+          message: error.message,
+        })
+      if (Error.isError(error))
+        return res.status(500).json({
+          message: error.message,
+        })
+    })
 })
 
-if (process.env?.['DEV'] ?? false) {
+if (isOnDev) {
   app.listen(PORT, () => console.log(`Server running on 127.0.0.1:${PORT}`))
 }

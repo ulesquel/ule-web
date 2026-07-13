@@ -1,0 +1,11 @@
+export class BadRequestError extends Error {
+  constructor(message: string) {
+    super(message)
+  }
+}
+
+export class DatabaseConnectionError extends Error {
+  constructor(message: string) {
+    super(message)
+  }
+}

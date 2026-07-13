@@ -42,6 +42,14 @@
     <label>Objetivo: <textarea name="objective" id="objective"></textarea></label>
     <label>Descripción: <textarea name="description" id="description"></textarea></label>
     <label>
+      Tipo de jornada
+      <select name="fest_type" id="fest_type">
+        <option value="workshop">Taller</option>
+        <option value="event">Evento</option>
+        <option value="competition">Competencia</option>
+      </select>
+    </label>
+    <label>
       Con qué frecuencia será
       <select name="frequency" id="frequency">
         <option value="daily">Diario</option>
@@ -52,7 +60,7 @@
     </label>
     <label>Fecha de inicio: <input name="init_date" type="datetime-local"></label>
     <label>Fecha de finalización: <input name="end_date" type="datetime-local"></label>
-    <label>Dirección del evento<input name="address" type="text"></label>
+    <label>Dirección de la jornada<input name="address" type="text"></label>
     <label>
       Subir una foto de, ns, alguna jornada
       <input name="img" accept="image/*" type="file">
