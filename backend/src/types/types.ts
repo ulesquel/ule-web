@@ -3,7 +3,7 @@ type Frequency = 'daily' | 'weekly' | 'biweekly' | 'monthly'
 type Date =
   `${number}${number}${number}${number}-${number}${number}-${number}${number} ${number}${number}:${number}${number}:${number}${number}.${number}${number}${number}`
 
-export type Type = 'workshop' | 'event' | 'competition'
+export type Type = 'workshop' | 'event' | 'competition' | ''
 
 // * These attributes are in snake_case because the database has it like these.
 export interface FestObject {

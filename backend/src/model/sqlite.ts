@@ -27,6 +27,10 @@ export class SqliteModel {
     'SELECT id_fest, frequency, name, objective, description, init_date, end_date, address, fest_type, img FROM fests WHERE fest_type = ?',
   )
 
+  private static festsPreparedWithoutFestTypeConditional = db.prepare(
+    'SELECT id_fest, frequency, name, objective, description, init_date, end_date, address, fest_type, img FROM fests',
+  )
+
   private static festByIdPrepared = db.prepare(
     'SELECT frequency, name, objective, description, init_date, end_date, address, fest_type, img FROM fests WHERE fest_type = ? AND id_fest = ?',
   )
@@ -45,13 +49,19 @@ export class SqliteModel {
     }
   }
 
-  static getAllFests(type: Type): FestObject[] | string | void {
+  static getAllFests(type: Type): FestObject[] | void {
     try {
+      if (typeof type === 'undefined' || type === '')
+        return this.festsPreparedWithoutFestTypeConditional.all() as FestObject[]
       const fests = this.festsPrepared.all(type) as FestObject[]
-      if (fests.length === 0) return `There are no fests of type ${type}`
-      return fests
-    } catch (e) {
-      console.error(`Appears an error trying to get the ${type}s`)
+      if (fests.length === 0) {
+        throw new BadRequestError(`No hay alguna jornada registrada`)
+      }
+    } catch (error) {
+      if (BadRequestError.isError(error)) {
+        console.error(error.message)
+        throw new BadRequestError(error.message)
+      }
     }
   }
 
@@ -63,7 +73,7 @@ export class SqliteModel {
       // La propiedad secure_url te devuelve la url de la imagen
       const { name } = fest
       const id_fest = hash('sha256', JSON.stringify(fest))
-      const currentFests = this.getAllFests(fest.fest_type)
+      const currentFests = this.festsPrepared.run(fest.fest_type)
       if (
         Array.isArray(currentFests) &&
         currentFests.some((fest) => fest.id_fest === id_fest)
@@ -78,7 +88,7 @@ export class SqliteModel {
         id_fest,
         img: imageUploaded.secure_url,
       })
-      return `${changes} rows modified`
+      return `Se agregó ${changes} nueva jornada`
     } catch (e) {
       if (BadRequestError.isError(e)) {
         console.error(e)

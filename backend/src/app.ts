@@ -5,6 +5,7 @@ import { SqliteModel } from '@/model/sqlite.js'
 import { upload } from '@/middlewares/multer.js'
 import cloudinaryConfig from '@/middlewares/cloudinary.js'
 import { BadRequestError, DatabaseConnectionError } from '@/errors/errors.js'
+import type { Type } from '@/types/types.js'
 
 const PORT = 3000
 const app = express()
@@ -22,6 +23,18 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cloudinaryConfig)
 app.get('/', (_, res) => {
   res.sendFile(path.join(__dirname, 'index.html'))
+})
+
+app.get('/fests', (req, res) => {
+  try {
+    const { fest } = req.query
+    const fests = SqliteModel.getAllFests(fest as Type)
+    return res.json(fests)
+  } catch (error) {
+    if (BadRequestError.isError(error)) {
+      return res.status(400).json({ message: error.message })
+    }
+  }
 })
 
 app.post('/fests', upload, (req, res) => {
