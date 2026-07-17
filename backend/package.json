@@ -23,6 +23,7 @@
     "@types/better-sqlite3": "7.6.13",
     "@types/cors": "2.8.19",
     "@types/express": "5.0.6",
+    "@types/morgan": "^1.9.10",
     "@types/multer": "^2.2.0",
     "@types/node": "26.1.0",
     "tsc-alias": "^1.9.0",
@@ -35,6 +36,7 @@
     "cors": "2.8.6",
     "express": "5.2.1",
     "express-validator": "^7.3.2",
+    "morgan": "^1.11.0",
     "multer": "^2.2.0"
   }
 }
