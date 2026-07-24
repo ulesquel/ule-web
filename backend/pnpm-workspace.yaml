@@ -1,3 +1,4 @@
 allowBuilds:
+  bcrypt: true
   better-sqlite3: true
   esbuild: true

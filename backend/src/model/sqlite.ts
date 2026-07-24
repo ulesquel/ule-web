@@ -2,16 +2,27 @@ import Database, { type Database as DbType } from 'better-sqlite3'
 import { v2 } from 'cloudinary'
 import path from 'node:path'
 import type { FestObject, Type } from '@/types/types.js'
+import type {
+  Admin,
+  Editor,
+  NewAdmin,
+  NewEditor,
+  Token,
+  User,
+} from '@/types/users.js'
 import { SqliteError } from 'better-sqlite3'
-import { hash } from 'node:crypto'
+import { hash, type UUID } from 'node:crypto'
 import {
   BadRequestError,
   DatabaseConnectionError,
   NotFoundError,
+  UnauthorizedError,
 } from '@/errors/errors.js'
-import { write } from 'node:fs'
+import bcrypt from 'bcrypt'
 
 const __dirname = path.resolve()
+const saltRounds = 10
+const { uploader } = v2
 
 const db: DbType = new Database(path.join(__dirname, 'db/database.db'), {
   timeout: 13000,
@@ -26,9 +37,14 @@ const writerDb: DbType = new Database(path.join(__dirname, 'db/database.db'), {
   verbose: console.log,
 })
 
-const { uploader } = v2
+db.pragma('foreign_keys = ON')
+writerDb.pragma('foreign_keys = ON')
 
 export class SqliteModel {
+  private static userPrepared = db.prepare(
+    'SELECT id_user, username, password, role FROM users WHERE username = ?',
+  )
+
   private static festsPrepared = db.prepare(
     'SELECT id_fest, frequency, name, objective, description, init_date, end_date, address, fest_type, img FROM fests WHERE fest_type = ?',
   )
@@ -41,6 +57,14 @@ export class SqliteModel {
     'SELECT frequency, name, objective, description, init_date, end_date, address, fest_type, img FROM fests WHERE id_fest = ?',
   )
 
+  private static getRefreshTokenPrepared = db.prepare(
+    'SELECT token, id_user FROM refresh_tokens WHERE token = ?',
+  )
+
+  private static getRefreshTokenByTokenIdPrepared = db.prepare(
+    'SELECT id_refresh_token FROM refresh_tokens WHERE id_refresh_token = ?',
+  )
+
   private static insertFestsPrepared = writerDb.prepare(
     'INSERT INTO fests (id_fest, frequency, name, objective, description, init_date, end_date, address, fest_type, img) VALUES (@id_fest, @frequency, @name, @objective, @description, @init_date, @end_date, @address, @fest_type, @img)',
   )
@@ -49,18 +73,43 @@ export class SqliteModel {
     'DELETE FROM fests WHERE id_fest = ?',
   )
 
+  private static insertUserPrepared = writerDb.prepare(
+    'INSERT INTO users (id_user, username, password, role) VALUES (@id_user, @username, @password, @role)',
+  )
+
+  private static insertRefreshTokenPrepared = writerDb.prepare(
+    'INSERT INTO refresh_tokens (id_refresh_token, token, id_user) VALUES (@id_refresh_token, @token, @id_user)',
+  )
+
+  private static deleteRefreshTokenPrepared = writerDb.prepare(
+    'DELETE FROM refresh_tokens WHERE token = ?',
+  )
+
+  private static deleteAllUserTokensPrepared = writerDb.prepare(
+    'DELETE FROM refresh_tokens WHERE id_user = ?',
+  )
+
+  private static deleteUserPrepared = writerDb.prepare(
+    'DELETE FROM users WHERE id_user = ?',
+  )
+
   private static catchErrors(error: unknown) {
-    if (BadRequestError.isError(error) || NotFoundError.isError(error)) {
-      console.error(error)
+    if (error instanceof BadRequestError) {
       throw new BadRequestError(error.message)
     }
-    if (SqliteError.isError(error)) {
+    if (error instanceof NotFoundError) {
+      throw new NotFoundError(error.message)
+    }
+    if (error instanceof UnauthorizedError) {
+      throw new UnauthorizedError(error.message)
+    }
+    if (error instanceof SqliteError) {
       console.error(error)
       throw new DatabaseConnectionError(
         'Hubo un error al intentar conectar a la base de datos, intente más tarde',
       )
     }
-    console.error('Unkown error', error)
+    console.error(error)
     throw new Error(
       'Hubo un error desconocido en el servidor, estamos trabajando en solucionarlo',
     )
@@ -128,11 +177,145 @@ export class SqliteModel {
   static deleteFest(id: string): string | void {
     try {
       if (id === '') throw new BadRequestError('Pase una ID')
-      console.log(id)
       const { changes } = this.deleteFestPrepared.run(id)
       if (changes === 0)
         throw new NotFoundError('No se encontró ninguna jornada para eliminar')
       return `Se eliminó ${changes} jornada`
+    } catch (error) {
+      this.catchErrors(error)
+    }
+  }
+
+  static async register({
+    username,
+    password,
+    role,
+  }: NewEditor | NewAdmin): Promise<string | void> {
+    try {
+      const user = this.userPrepared.get(username)
+
+      if (user)
+        throw new BadRequestError(
+          'Este nombre de usuario no está disponible, utilice otro',
+        )
+
+      const id = crypto.randomUUID()
+
+      const hashedPassword = bcrypt.hashSync(password, saltRounds)
+
+      const newUser: User<typeof role> = {
+        id_user: id,
+        username: username,
+        password: hashedPassword,
+        role,
+      }
+
+      const { changes } = this.insertUserPrepared.run(newUser)
+      if (changes === 0)
+        throw new Error(
+          'No se pudo agregar el nuevo admin por un error desconocido',
+        )
+      return 'Se agregó un nuevo administrador'
+    } catch (error) {
+      this.catchErrors(error)
+    }
+  }
+
+  static async getUser(username: string, password: string) {
+    try {
+      if (!username || !password)
+        throw new BadRequestError('Complete todos los campos')
+
+      const user = this.userPrepared.get(username) as Admin | Editor
+
+      if (typeof user === 'undefined')
+        throw new NotFoundError('Revise la contraseña o el nombre de usuario')
+
+      const isMatched = bcrypt.compareSync(password, user.password)
+      if (!isMatched)
+        throw new BadRequestError(
+          'Credenciales inválidas, revise la contraseña o el nombre de usuario',
+        )
+      return { id_user: user.id_user, role: user.role }
+    } catch (error) {
+      this.catchErrors(error)
+    }
+  }
+
+  static getRefreshToken(token: string) {
+    try {
+      const foundToken = this.getRefreshTokenPrepared.get(token) as
+        Token | undefined
+      if (typeof foundToken === 'undefined')
+        throw new UnauthorizedError('No está autorizado, no existe un token')
+      return foundToken
+    } catch (error) {
+      this.catchErrors(error)
+    }
+  }
+
+  static saveNewToken(
+    tokenId: string /* This must should be the jti */,
+    token: string,
+    userId: string,
+  ) {
+    try {
+      const { changes } = this.insertRefreshTokenPrepared.run({
+        id_refresh_token: tokenId,
+        token,
+        id_user: userId,
+      })
+
+      return changes
+    } catch (error) {
+      this.catchErrors(error)
+    }
+  }
+
+  static deleteRefreshToken(token: string): void {
+    try {
+      this.deleteRefreshTokenPrepared.run(token)
+      return
+    } catch (error) {
+      this.catchErrors(error)
+    }
+  }
+
+  static revokeAllTokensForUser(userId: string): void {
+    try {
+      this.deleteAllUserTokensPrepared.run(userId)
+      return
+    } catch (error) {
+      this.catchErrors(error)
+    }
+  }
+
+  static validateToken(userId: string, tokenId: UUID /* The jti */): void {
+    try {
+      const token = this.getRefreshTokenByTokenIdPrepared.get(tokenId)
+      if (typeof token === 'undefined') {
+        this.revokeAllTokensForUser(userId)
+        throw new UnauthorizedError(
+          'Este token no es válido, revocando todos los tokens',
+        )
+      }
+      return
+    } catch (error) {
+      this.catchErrors(error)
+    }
+  }
+
+  static deleteUser({ id }: { id: UUID }) {
+    try {
+      if (!id)
+        throw new BadRequestError('Pase una ID de usuario para eliminar uno')
+
+      const { changes } = this.deleteUserPrepared.run(id)
+
+      if (changes === 0)
+        throw new NotFoundError('No se encontró el usuario a eliminar')
+
+      return
     } catch (error) {
       this.catchErrors(error)
     }
