@@ -5,6 +5,7 @@ import type { FestObject, Type } from '@/types/types.js'
 import type {
   Admin,
   Editor,
+  FiltersKeys,
   NewAdmin,
   NewEditor,
   Token,
@@ -63,6 +64,10 @@ export class SqliteModel {
 
   private static getRefreshTokenByTokenIdPrepared = db.prepare(
     'SELECT id_refresh_token FROM refresh_tokens WHERE id_refresh_token = ?',
+  )
+
+  private static getUserByIdPrepared = db.prepare(
+    'SELECT username FROM users WHERE id_user = @value',
   )
 
   private static insertFestsPrepared = writerDb.prepare(
@@ -316,6 +321,21 @@ export class SqliteModel {
         throw new NotFoundError('No se encontró el usuario a eliminar')
 
       return
+    } catch (error) {
+      this.catchErrors(error)
+    }
+  }
+
+  static getUserBy(filter: FiltersKeys, value: string) {
+    try {
+      if (filter === 'id_user') {
+        const filteredUser = this.getUserByIdPrepared.get({ value })
+        if (!filteredUser)
+          throw new NotFoundError(
+            `No se encontró el usuario con ${filter} ${value}`,
+          )
+        return filteredUser
+      }
     } catch (error) {
       this.catchErrors(error)
     }

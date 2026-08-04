@@ -28,6 +28,7 @@ export const handleErrors = (res: Response, error: unknown) => {
       message: 'No estás autorizado',
     })
   } else {
+    console.log(error)
     return res.status(500).json({
       message:
         'Ocurrió un error inesperado, estamos trabajando para arreglarlo',

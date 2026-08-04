@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Inicia Sesión</title>
+</head>
+
+<body>
+  <form id="login-form">
+    <label>
+      Nombre de usuario:
+      <input id="username" type="text" required />
+    </label>
+    <label>
+      Contraseña:
+      <input id="password" type="password" required />
+    </label>
+    <input type="submit" value="Iniciar sesión" />
+  </form>
+  <script>
+    const $form = document.querySelector('#login-form')
+    const $username = document.querySelector('#username')
+    const $password = document.querySelector('#password')
+
+
+    $form.addEventListener('submit', (e) => {
+      e.preventDefault()
+
+      const body = {
+        username: $username.value,
+        password: $password.value
+      }
+
+      fetch('/users/login', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      })
+        .then(res => res.json())
+        .then(data => {
+          window.localStorage.setItem('accessToken', data.accessToken)
+        })
+        .catch(e => console.error(e))
+    })
+  </script>
+</body>
+
+</html>
