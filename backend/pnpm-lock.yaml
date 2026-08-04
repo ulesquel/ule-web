@@ -7,52 +7,52 @@ importers:
     configDependencies: {}
     packageManagerDependencies:
       '@pnpm/exe':
-        specifier: ^11.5.2
-        version: 11.10.0
+        specifier: 11.5.2
+        version: 11.5.2
       pnpm:
-        specifier: ^11.5.2
-        version: 11.10.0
+        specifier: 11.5.2
+        version: 11.5.2
 
 packages:
 
-  '@pnpm/exe@11.10.0':
-    resolution: {integrity: sha512-mrmfi2C7LpZkyq0voKKye6MzrK8/K7tYQRiSB/jqOiwnFtQxxcA3xGTY9cEsrGpNl2ClPecQofLuj+BO8AIsxw==}
+  '@pnpm/exe@11.5.2':
+    resolution: {integrity: sha512-4UFnP2rhNu1xjAQ+I1GdIUUEtCJuTYJlbpiWSFA4POAID3Lpt+2vrjImWO7eOJ7iCY3vpc4TFe2IW3sAolW4Kg==}
     hasBin: true
 
-  '@pnpm/linux-arm64@11.10.0':
-    resolution: {integrity: sha512-NbvDeUfs0SJuli9OPvgVvmnlbo2DvJ861XGXKrzgLu5AuTnLDLXgbZEEUd8mJ5I0YNrqOVXSWVfWEqiAazWzPA==}
+  '@pnpm/linux-arm64@11.5.2':
+    resolution: {integrity: sha512-MbJySnu2y9cCBqlODLjUlZ87JnRC3Inq40rvGHWJSrSQ0PnuHeSw2NDMnLI8Hf9hCY+ooussRc5iiR4IAkjUvg==}
     cpu: [arm64]
     os: [linux]
 
-  '@pnpm/linux-x64@11.10.0':
-    resolution: {integrity: sha512-kdgb8BXZ/3XQ0x2cOmgLmsij7+SUIqd1bcV6OZhdGzQiDrOY6FAPrR+Y2Bp+NjrrhjzMHVm5pZrrmdeC67ymSQ==}
+  '@pnpm/linux-x64@11.5.2':
+    resolution: {integrity: sha512-g6g2BGpQA47wUACy6B1MdeSHPtnl6x4AeCg0IOWQ7xXorEtC+VRiSHhLpA5kByFGeSwyYh/nLc7mLul5DAaELw==}
     cpu: [x64]
     os: [linux]
 
-  '@pnpm/linuxstatic-arm64@11.10.0':
-    resolution: {integrity: sha512-JE1WrSyKGvqGQgWzqrMXn//ehedpiRax3hi1oP+v6mhvcnlJD1lpfXsjSfIFl9weTWC5KVtFbxSNKbKWfP+v6g==}
+  '@pnpm/linuxstatic-arm64@11.5.2':
+    resolution: {integrity: sha512-xTxs9BLxYW39BPNGnmvYCUBnMPWm4mzmzujmdYbpRxDnBXrx55qPR5K/3LSohX7VrmsdDrYxuH6AmG1AaOlIfA==}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@pnpm/linuxstatic-x64@11.10.0':
-    resolution: {integrity: sha512-1TBZVRkWb78GnsusIfVgwz20MOOW0fyehW+qLL3MxE9vT0IedNWsAhe3KWXgEvtC4M7NtMt55uQQJm+1egwBkA==}
+  '@pnpm/linuxstatic-x64@11.5.2':
+    resolution: {integrity: sha512-RGmmc/SoGLD90gmOHcU85UEKNoNRstLvizli4wzDASmETz/VeqJOqU5nD1YBgjzcP72sUMS352dh4bmzTfKyvQ==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@pnpm/macos-arm64@11.10.0':
-    resolution: {integrity: sha512-94AVpPixBqyNT6SHYvIKFb1bfaHR5vxBzZsiFJahNSlGkgyPrgzmcqDiloZ/Jl+zxJd8L5PU1ddP0Q9PZnRqlA==}
+  '@pnpm/macos-arm64@11.5.2':
+    resolution: {integrity: sha512-gW3A2jRlC3SJRw8qX2SAzjMIu9o98daTSqCKzeeYcjF/uEbtbz3dn4HqYrYffBnenKbc4hsgZQmNOHAvUKIlSg==}
     cpu: [arm64]
     os: [darwin]
 
-  '@pnpm/win-arm64@11.10.0':
-    resolution: {integrity: sha512-g2Ymnq+LgVyZaWsGBQSlpIcBCOOxyLky2UX+kTwGiIXnj6k/xXqZR0ZJLuxeiGNh/CVmhftOqokpyJNzyj8kng==}
+  '@pnpm/win-arm64@11.5.2':
+    resolution: {integrity: sha512-+VJCDoH/pRzLXBikwjvxgAnGfQufT8EALBX8cfSmrwD40JABUZvgPtjBjde7OwEoK/XwtlH8w+ZceFV0K3/YHQ==}
     cpu: [arm64]
     os: [win32]
 
-  '@pnpm/win-x64@11.10.0':
-    resolution: {integrity: sha512-kCHYZudUEBjrEchgnJUnNHCdvLXpUZun2z0rMAeP5DymsaXwEVvVzGj220iR/NyhgDocJUmgtTKtwL/ejL785Q==}
+  '@pnpm/win-x64@11.5.2':
+    resolution: {integrity: sha512-zgglREh75RbFgV/E0tNRS03ElX+hJOV43KRSSeaboxtj3ei1rrguxOgOCXUs/GsizoHVsuD+qXGABE4Kc4GMCg==}
     cpu: [x64]
     os: [win32]
 
@@ -116,45 +116,45 @@ packages:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
 
-  pnpm@11.10.0:
-    resolution: {integrity: sha512-C3+LmAYAMZBMAX46QesYehbUDuuCm5XE+MsDaBdh/Eq1PdIZEVubRH9NzhoFohR2RGHn03AzkqnzL5URzoyGyA==}
+  pnpm@11.5.2:
+    resolution: {integrity: sha512-ccYx44IGbvwlYl1c8CkHXeB7YbN/bic1D72Esb2lhkyMGWetwoB3a0XDCnFcA1mjvgj+9C1bsJ4rmQKZeWkpFg==}
     engines: {node: '>=22.13'}
     hasBin: true
 
 snapshots:
 
-  '@pnpm/exe@11.10.0':
+  '@pnpm/exe@11.5.2':
     dependencies:
       '@reflink/reflink': 0.1.19
       detect-libc: 2.1.2
     optionalDependencies:
-      '@pnpm/linux-arm64': 11.10.0
-      '@pnpm/linux-x64': 11.10.0
-      '@pnpm/linuxstatic-arm64': 11.10.0
-      '@pnpm/linuxstatic-x64': 11.10.0
-      '@pnpm/macos-arm64': 11.10.0
-      '@pnpm/win-arm64': 11.10.0
-      '@pnpm/win-x64': 11.10.0
+      '@pnpm/linux-arm64': 11.5.2
+      '@pnpm/linux-x64': 11.5.2
+      '@pnpm/linuxstatic-arm64': 11.5.2
+      '@pnpm/linuxstatic-x64': 11.5.2
+      '@pnpm/macos-arm64': 11.5.2
+      '@pnpm/win-arm64': 11.5.2
+      '@pnpm/win-x64': 11.5.2
 
-  '@pnpm/linux-arm64@11.10.0':
+  '@pnpm/linux-arm64@11.5.2':
     optional: true
 
-  '@pnpm/linux-x64@11.10.0':
+  '@pnpm/linux-x64@11.5.2':
     optional: true
 
-  '@pnpm/linuxstatic-arm64@11.10.0':
+  '@pnpm/linuxstatic-arm64@11.5.2':
     optional: true
 
-  '@pnpm/linuxstatic-x64@11.10.0':
+  '@pnpm/linuxstatic-x64@11.5.2':
     optional: true
 
-  '@pnpm/macos-arm64@11.10.0':
+  '@pnpm/macos-arm64@11.5.2':
     optional: true
 
-  '@pnpm/win-arm64@11.10.0':
+  '@pnpm/win-arm64@11.5.2':
     optional: true
 
-  '@pnpm/win-x64@11.10.0':
+  '@pnpm/win-x64@11.5.2':
     optional: true
 
   '@reflink/reflink-darwin-arm64@0.1.19':
@@ -194,7 +194,7 @@ snapshots:
 
   detect-libc@2.1.2: {}
 
-  pnpm@11.10.0: {}
+  pnpm@11.5.2: {}
 
 ---
 lockfileVersion: '9.0'
@@ -208,44 +208,47 @@ importers:
   .:
     dependencies:
       bcrypt:
-        specifier: ^6.0.0
+        specifier: 6.0.0
         version: 6.0.0
       better-sqlite3:
         specifier: 12.11.1
         version: 12.11.1
       cloudinary:
-        specifier: ^2.10.0
+        specifier: 2.10.0
         version: 2.10.0
       cookie-parser:
-        specifier: ^1.4.7
+        specifier: 1.4.7
         version: 1.4.7
       cors:
         specifier: 2.8.6
         version: 2.8.6
+      ejs:
+        specifier: 6.0.1
+        version: 6.0.1
       express:
         specifier: 5.2.1
         version: 5.2.1
       express-validator:
-        specifier: ^7.3.2
+        specifier: 7.3.2
         version: 7.3.2
       jsonwebtoken:
-        specifier: ^9.0.3
+        specifier: 9.0.3
         version: 9.0.3
       morgan:
-        specifier: ^1.11.0
+        specifier: 1.11.0
         version: 1.11.0
       multer:
-        specifier: ^2.2.0
+        specifier: 2.2.0
         version: 2.2.0
     devDependencies:
       '@types/bcrypt':
-        specifier: ^6.0.0
+        specifier: 6.0.0
         version: 6.0.0
       '@types/better-sqlite3':
         specifier: 7.6.13
         version: 7.6.13
       '@types/cookie-parser':
-        specifier: ^1.4.10
+        specifier: 1.4.10
         version: 1.4.10(@types/express@5.0.6)
       '@types/cors':
         specifier: 2.8.19
@@ -254,22 +257,22 @@ importers:
         specifier: 5.0.6
         version: 5.0.6
       '@types/jsonwebtoken':
-        specifier: ^9.0.10
+        specifier: 9.0.10
         version: 9.0.10
       '@types/morgan':
-        specifier: ^1.9.10
+        specifier: 1.9.10
         version: 1.9.10
       '@types/multer':
-        specifier: ^2.2.0
+        specifier: 2.2.0
         version: 2.2.0
       '@types/node':
         specifier: 26.1.0
         version: 26.1.0
       tsc-alias:
-        specifier: ^1.9.1
+        specifier: 1.9.1
         version: 1.9.1
       tsx:
-        specifier: ^4.23.1
+        specifier: 4.23.1
         version: 4.23.1
       typescript:
         specifier: 6.0.3
@@ -670,6 +673,11 @@ packages:
 
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
+
+  ejs@6.0.1:
+    resolution: {integrity: sha512-UaaM14yby8U3k02ihS1Bmj5Kz2d7CCQM1scxpgs4Mhkq8F1wR2gl3+Ts4h5Ne4Mnt7M9m4Dw7jsuMr3+xO4vZA==}
+    engines: {node: '>=0.12.18'}
+    hasBin: true
 
   encodeurl@2.0.0:
     resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
@@ -1512,6 +1520,8 @@ snapshots:
       safe-buffer: 5.2.1
 
   ee-first@1.1.1: {}
+
+  ejs@6.0.1: {}
 
   encodeurl@2.0.0: {}
 

@@ -10,6 +10,8 @@ export type User<T extends Role> = {
   role: T
 }
 
+export type FiltersKeys = keyof Omit<User<Role>, 'password'>
+
 type Public<T> = Omit<T, 'password' | 'id_user'>
 type New<T> = Omit<T, 'id_user'>
 

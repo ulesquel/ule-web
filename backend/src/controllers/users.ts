@@ -5,11 +5,13 @@ import type {
   NewEditor,
   RefreshToken,
   Role,
+  Token,
   User,
 } from '@/types/users.js'
 import type { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { handleErrors } from './utilities/handleErrors.js'
+import { handleErrors } from '@/controllers/utilities/handle-errors.js'
+import { generateTokensPair } from '@/controllers/utilities/generate-tokens.js'
 import type { UUID } from 'crypto'
 
 export class UsersController {
@@ -19,19 +21,11 @@ export class UsersController {
       jwtSecret,
     ) as RefreshToken
 
-    const newTokenId = crypto.randomUUID()
+    const payload = { userId, role }
 
-    const accessToken = jwt.sign({ userId, role }, jwtSecret, {
-      expiresIn: '15m',
-      jwtid: newTokenId,
-    })
+    const [accessToken, refreshToken, tokenId] = generateTokensPair(payload)
 
-    const refreshToken = jwt.sign({ userId, role }, jwtSecret, {
-      expiresIn: '7d',
-      jwtid: newTokenId,
-    })
-
-    SqliteModel.saveNewToken(newTokenId, refreshToken, userId)
+    SqliteModel.saveNewToken(tokenId as string, refreshToken as string, userId)
 
     return res
       .cookie('refreshToken', refreshToken, {
@@ -69,24 +63,20 @@ export class UsersController {
       const { body } = req
       const { username, password } = body
 
-      const { id_user: id, role } = (await SqliteModel.getUser(
+      const { id_user: userId, role } = (await SqliteModel.getUser(
         username,
         password,
       )) as unknown as User<Role>
 
-      const tokenId = crypto.randomUUID()
+      const payload = { userId, role }
 
-      const accessToken = jwt.sign({ userId: id, role }, jwtSecret, {
-        expiresIn: '15m',
-        jwtid: tokenId,
-      })
+      const [accessToken, refreshToken, tokenId] = generateTokensPair(payload)
 
-      const refreshToken = jwt.sign({ userId: id, role }, jwtSecret, {
-        expiresIn: '7d',
-        jwtid: tokenId,
-      })
-
-      const rowsChanged = SqliteModel.saveNewToken(tokenId, refreshToken, id)
+      const rowsChanged = SqliteModel.saveNewToken(
+        tokenId as string,
+        refreshToken as string,
+        userId,
+      )
 
       if (rowsChanged === 0)
         return res.status(500).json({ message: 'No se pudo guardar el token' })
@@ -99,6 +89,17 @@ export class UsersController {
           maxAge: 7 * 24 * 60 * 60 * 1000 /* 1 week */,
         })
         .json({ accessToken })
+    } catch (error) {
+      return handleErrors(res, error)
+    }
+  }
+
+  static renderDashboard(req: Request, res: Response) {
+    try {
+      const { refreshToken } = req.cookies
+      const { id_user: id } = SqliteModel.getRefreshToken(refreshToken) as Token
+      const { username } = SqliteModel.getUserBy('id_user', id) as User<Role>
+      res.render('dashboard', { id, username })
     } catch (error) {
       return handleErrors(res, error)
     }
