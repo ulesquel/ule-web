@@ -17,7 +17,6 @@
     // and npm install -D @types/node
     // Other Outputs
     "sourceMap": false,
-    "declaration": false,
     "declarationMap": false,
     "paths": {
       "@/*": [
@@ -41,6 +40,7 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "composite": true
   }
 }
