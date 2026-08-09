@@ -1,42 +1,27 @@
-import Database, { type Database as DbType } from 'better-sqlite3'
-import { v2 } from 'cloudinary'
-import path from 'node:path'
-import type { FestObject, Type } from '@/types/types.js'
-import type {
-  Admin,
-  Editor,
-  FiltersKeys,
-  NewAdmin,
-  NewEditor,
-  Token,
-  User,
-} from '@/types/users.js'
-import { SqliteError } from 'better-sqlite3'
-import { hash, type UUID } from 'node:crypto'
+import { db, writerDb } from '@/configs/db.js';
 import {
-  BadRequestError,
-  DatabaseConnectionError,
-  NotFoundError,
-  UnauthorizedError,
-} from '@/errors/errors.js'
-import bcrypt from 'bcrypt'
+    BadRequestError,
+    DatabaseConnectionError,
+    NotFoundError,
+    UnauthorizedError,
+} from '@/errors/errors.js';
+import type { FestObject, Type } from '@/types/types.js';
+import type {
+    Admin,
+    Editor,
+    FiltersKeys,
+    NewAdmin,
+    NewEditor,
+    Token,
+    User,
+} from '@/types/users.js';
+import bcrypt from 'bcrypt';
+import { SqliteError } from 'better-sqlite3';
+import { v2 } from 'cloudinary';
+import { hash, type UUID } from 'node:crypto';
 
-const __dirname = path.resolve()
 const saltRounds = 10
 const { uploader } = v2
-
-const db: DbType = new Database(path.join(__dirname, 'db/database.db'), {
-  timeout: 13000,
-  fileMustExist: true,
-  verbose: console.log,
-  readonly: true,
-})
-
-const writerDb: DbType = new Database(path.join(__dirname, 'db/database.db'), {
-  timeout: 13000,
-  fileMustExist: true,
-  verbose: console.log,
-})
 
 db.pragma('foreign_keys = ON')
 writerDb.pragma('foreign_keys = ON')
@@ -250,7 +235,8 @@ export class SqliteModel {
   static getRefreshToken(token: string) {
     try {
       const foundToken = this.getRefreshTokenPrepared.get(token) as
-        Token | undefined
+        | Token
+        | undefined
       if (typeof foundToken === 'undefined')
         throw new UnauthorizedError('No está autorizado, no existe un token')
       return foundToken

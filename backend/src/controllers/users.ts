@@ -1,18 +1,18 @@
-import { jwtSecret } from '@/config.js'
-import { SqliteModel } from '@/model/sqlite.js'
+import { jwtSecret } from '@/configs/app.js';
+import { generateTokensPair } from '@/controllers/utilities/generate-tokens.js';
+import { handleErrors } from '@/controllers/utilities/handle-errors.js';
+import { SqliteModel } from '@/model/sqlite.js';
 import type {
-  NewAdmin,
-  NewEditor,
-  RefreshToken,
-  Role,
-  Token,
-  User,
-} from '@/types/users.js'
-import type { Request, Response } from 'express'
-import jwt from 'jsonwebtoken'
-import { handleErrors } from '@/controllers/utilities/handle-errors.js'
-import { generateTokensPair } from '@/controllers/utilities/generate-tokens.js'
-import type { UUID } from 'crypto'
+    NewAdmin,
+    NewEditor,
+    RefreshToken,
+    Role,
+    Token,
+    User,
+} from '@/types/users.js';
+import type { UUID } from 'crypto';
+import type { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 
 export class UsersController {
   static refreshToken(req: Request, res: Response) {

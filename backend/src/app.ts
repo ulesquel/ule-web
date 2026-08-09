@@ -1,12 +1,12 @@
-import path from 'node:path'
-import express from 'express'
-import cors from 'cors'
-import morgan from 'morgan'
-import cookieParser from 'cookie-parser'
-import cloudinaryConfig from '@/middlewares/cloudinary.js'
-import { PORT, isOnDev } from '@/config.js'
-import festRouter from '@/routes/fests.js'
-import usersRouter from '@/routes/users.js'
+import { PORT, isOnDev } from '@/configs/app.js';
+import cloudinaryConfig from '@/middlewares/cloudinary.js';
+import festRouter from '@/routes/fests.js';
+import usersRouter from '@/routes/users.js';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import express from 'express';
+import morgan from 'morgan';
+import path from 'node:path';
 
 const app = express()
 const __dirname = path.resolve()
