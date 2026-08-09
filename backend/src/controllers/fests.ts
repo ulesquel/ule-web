@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
 import { SqliteModel } from '@/model/sqlite.js'
 import type { Type } from '@/types/types.js'
-import { handleErrors } from '@/controllers/utilities/handleErrors.js'
+import { handleErrors } from '@/controllers/utilities/handle-errors.js'
 
 export class FestController {
   static getAll(req: Request, res: Response) {
