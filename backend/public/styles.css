@@ -94,7 +94,7 @@ main {
       padding: 1rem 0;
       width: 100%;
       text-align: center;
-      border: 1px solid #ff6201;
+      border: 1px solid var(--color-ule);
 
       img {
         aspect-ratio: 10/6;
@@ -104,6 +104,68 @@ main {
 
       h5 {
         margin-top: 1.5rem;
+      }
+    }
+  }
+}
+
+#login-container {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+
+  #login-form {
+    padding: 10px 1.5rem;
+    display: flex;
+    flex-direction: column;
+    margin-inline: auto;
+    background-color: var(--color-ule);
+    font-size: 1.5rem;
+    color: white;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-block: .8rem;
+      position: relative;
+
+      input {
+        border: none;
+        padding: 10px 8px;
+        font-size: 1.1rem;
+
+        &:focus {
+          outline: none;
+        }
+      }
+
+      #show-password {
+        border: none;
+        background-color: white;
+        margin: 4px;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+
+        &:focus,
+        &:active {
+          outline: none;
+        }
+      }
+    }
+
+    [type="submit"] {
+      width: 75%;
+      font-size: 1.1rem;
+      margin: 1.5rem auto;
+      padding: .5rem 0;
+      border: none;
+      background-color: color-mix(in srgb, var(--color-ule), white 80%);
+      transition: background-color .1s ease-in-out;
+
+      &:hover {
+        background-color: color-mix(in srgb, var(--color-ule), white 60%);
       }
     }
   }
