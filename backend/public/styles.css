@@ -20,6 +20,10 @@
     sans-serif;
 }
 
+body {
+  height: 100dvh;
+}
+
 main {
   padding-bottom: 4rem;
 
@@ -110,9 +114,9 @@ main {
 }
 
 #login-container {
-  min-height: 100dvh;
   display: grid;
   place-items: center;
+  height: 70%;
 
   #login-form {
     padding: 10px 1.5rem;
@@ -127,7 +131,7 @@ main {
       display: flex;
       flex-direction: column;
       gap: 4px;
-      margin-block: .8rem;
+      margin-block: 0.8rem;
       position: relative;
 
       input {
@@ -143,7 +147,7 @@ main {
       #show-password {
         border: none;
         background-color: white;
-        margin: 4px;
+        margin: 2% 3%;
         position: absolute;
         right: 0;
         bottom: 0;
@@ -155,14 +159,14 @@ main {
       }
     }
 
-    [type="submit"] {
+    [type='submit'] {
       width: 75%;
       font-size: 1.1rem;
       margin: 1.5rem auto;
-      padding: .5rem 0;
+      padding: 0.5rem 0;
       border: none;
       background-color: color-mix(in srgb, var(--color-ule), white 80%);
-      transition: background-color .1s ease-in-out;
+      transition: background-color 0.1s ease-in-out;
 
       &:hover {
         background-color: color-mix(in srgb, var(--color-ule), white 60%);

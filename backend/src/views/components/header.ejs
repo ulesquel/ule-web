@@ -1,0 +1,159 @@
+<header>
+  <% if (isOnDashboard) { %>
+    <div class="close-session-container">
+      <button id="close-session">Cerrar sesión</button>
+    </div>
+  <% } %>
+   
+  <h1>
+    <span>Usuarios Libres</span>
+    <span>de Esquel</span>
+  </h1>
+  <div>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xml:space="preserve"
+      id="svg1"
+      width="100"
+      height="100"
+      viewBox="0 0 26.458 26.458"
+    >
+      <g id="layer1">
+        <path
+          id="path1"
+          d="M1.972 10.416c.268.646.744 1.023 1.258 1.55.57.21 1.202.074 1.596.094 1.635-.071 3.05-.646 4.5-1.144.361-.4.35-1.369.007-2.327-.186-.518-.314-1.105-.298-1.677.081-1.067.307-2.015.775-2.765.95-1.563 1.56-1.953 2.467-2.43 1.288-.667 2.1-.664 2.951-.716 1.023.014 1.966.202 2.806.62.983.452 1.666 1.094 1.982 1.758.48.687.67 1.272.924 1.83.715 1.881.161 2.504 1.062 2.609 1.194.284 2.426.453 3.58.858.401.306.565.807.58 1.43-.208.659-.841 1.024-1.693 1.24l-3.87.62c-.066.116-.162.188-.146.428l.871 1.097 1.21 1.573c.645.726.982 1.336 1.258 2.097.157.734.212 1.57.048 2.622-.234.9-.498 1.78-1.113 2.431-.362.38-.65.63-1.023.946s-.853.628-1.384.92c-1.088.577-2.537.63-3.737.803-1.144.057-2.328.106-3.338.072-2.34-.006-4.564-.038-6.653-.286-1.186-.13-2.36-.286-3.29-.93-.97-.782-1.407-1.56-1.91-2.383-.509-.91-.75-1.951-.872-3.05-.152-1.344-.263-2.695-.096-4.1.043-1.276.337-2.306.701-3.266.249-1.017.561-1.017.847-.524Z"
+          style="
+            opacity: 1;
+            fill: #ff6201;
+            fill-opacity: 1;
+            stroke: #fff;
+            stroke-width: 0.38419;
+            stroke-opacity: 1;
+          "
+        />
+        <ellipse
+          id="path3"
+          cx="17.381"
+          cy="5.84"
+          rx=".805"
+          ry=".84"
+          style="
+            opacity: 1;
+            fill: #fff;
+            fill-opacity: 1;
+            stroke: #fff;
+            stroke-width: 0.619071;
+            stroke-linecap: butt;
+            stroke-dasharray: none;
+            stroke-opacity: 1;
+            paint-order: normal;
+          "
+        />
+      </g>
+      <text
+        xml:space="preserve"
+        id="text3"
+        x="5.695"
+        y="22.391"
+        transform="scale(1.02193 .97854)"
+      >
+        <tspan id="tspan3" x="5.695" y="22.391">ule</tspan>
+      </text>
+    </svg>
+  </div>
+</header>
+
+<style>
+  header {
+    background-color: var(--color-ule);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    position: relative;
+
+    .close-session-container {
+      position: absolute;
+      left: 0;
+      margin-inline: 2rem;
+
+      button {
+        border: none;
+        padding: .8rem .5rem;
+        font-size: 1.1rem;
+        background-color: color-mix(in srgb, var(--color-ule), red 50%);
+        color: white;
+        outline: 0px solid color-mix(in srgb, var(--color-ule), rgb(99, 0, 0) 90%);
+        font-weight: 700;
+        box-shadow: 3px 3px 0 color-mix(in srgb, var(--color-ule), rgb(97, 0, 0) 90%);
+        transition: background-color .1s ease-in-out, outline .1s ease-in-out;
+
+        &:hover {
+          background-color: color-mix(in srgb, var(--color-ule), red 30%);
+        }
+
+        &:focus, &:active {
+          background-color: color-mix(in srgb, var(--color-ule), red 30%);
+          outline: 2px solid color-mix(in srgb, var(--color-ule), rgb(99, 0, 0) 90%);
+        }
+      }
+    }
+
+    h1 {
+      font-size: clamp(1.875rem, 3rem);
+      font-weight: 600;
+      letter-spacing: 0.025rem;
+      color: white;
+      flex-direction: column;
+      display: flex;
+
+      span {
+        text-align: right;
+        padding-block: 0.5rem;
+
+        &:nth-child(2) {
+          display: block;
+        }
+      }
+    }
+
+    div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: square;
+
+      svg {
+        text {
+          font-size: 9.92328px;
+          writing-mode: lr-tb;
+          direction: ltr;
+          opacity: 1;
+          fill-opacity: 1;
+          fill: #fff;
+          stroke: #fff;
+          stroke-width: 0.699803;
+          stroke-linecap: butt;
+          stroke-dasharray: none;
+          stroke-opacity: 1;
+          paint-order: normal;
+
+          tspan {
+            font-style: normal;
+            font-variant: normal;
+            font-weight: 300;
+            color: #fff;
+            fill: #fff;
+            stroke: #fff;
+            font-stretch: normal;
+            font-family: Ubuntu;
+            -inkscape-font-specification: 'Ubuntu Light';
+            stroke-width: 0.699803;
+            stroke-dasharray: none;
+          }
+        }
+      }
+    }
+  }
+</style>

@@ -6,7 +6,7 @@
       <title>Dashboard</title>
     </head>
     <body>
-      <button id="close-session">Cerrar sesión</button>
+      <%- include('components/header.ejs', {isOnDashboard: true}) %>
       <main>
         <h1>
           Hola <%= username %>
@@ -102,19 +102,24 @@
         }
 
         $closeSession.addEventListener('click', () => {
-          fetch('/users/logout')
-            .then(res => res.json())
-            .then(data => {
-              const { message } = data
-              alert(message)
-              setTimeout(() => {
-                window.location.reload()
-              }, 1000)
-            })
-            .catch(error => {
-              const { message } = data.json()
-              alert(message)
-            })
+          const confirmation = confirm('¿Querés cerrar la sesión?')
+          if (confirmation) {
+            fetch('/users/logout')
+              .then(res => res.json())
+              .then(data => {
+                const { message } = data
+                alert(message)
+                setTimeout(() => {
+                  window.location.reload()
+                }, 1000)
+              })
+              .catch(error => {
+                const { message } = data.json()
+                alert(message)
+              })
+            return
+          }
+          return
         })
       </script>
     </body>
