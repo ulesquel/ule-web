@@ -13,6 +13,7 @@ import type {
   FiltersKeys,
   NewAdmin,
   NewEditor,
+  Role,
   Token,
   User,
 } from '@/types/users.js'
@@ -64,7 +65,7 @@ export class SqliteModel {
     }
   }
 
-  static getAllFests(type: Type): FestObject[] | void {
+  static getAllFests(type: Type = ''): FestObject[] | void {
     try {
       if (type === '')
         return this.sqlQueries.festsPreparedWithoutFestTypeConditional.all() as FestObject[]
@@ -153,6 +154,17 @@ export class SqliteModel {
           'No se pudo agregar el nuevo admin por un error desconocido',
         )
       return 'Se agregó un nuevo administrador'
+    } catch (error) {
+      this.catchErrors(error)
+    }
+  }
+
+  static async getAllUsers() {
+    try {
+      const users = this.sqlQueries.allUsersPrepared.all()
+      if (users.length === 0)
+        throw new NotFoundError('No hay usuarios registrados')
+      return users as User<Role>[]
     } catch (error) {
       this.catchErrors(error)
     }

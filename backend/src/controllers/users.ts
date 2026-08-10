@@ -1,23 +1,27 @@
-import { jwtSecret } from '@/configs/app.js';
-import { generateTokensPair } from '@/controllers/utilities/generate-tokens.js';
-import { handleErrors } from '@/controllers/utilities/handle-errors.js';
-import { SqliteModel } from '@/model/sqlite.js';
+import { jwtSecret } from '@/configs/app.js'
+import { refreshTokenDuration } from '@/constants.js'
+import { generateTokensPair } from '@/controllers/utilities/generate-tokens.js'
+import { handleErrors } from '@/controllers/utilities/handle-errors.js'
+import { ForbiddenError, UnauthorizedError } from '@/errors/errors.js'
+import { SqliteModel } from '@/model/sqlite.js'
 import type {
-    NewAdmin,
-    NewEditor,
-    RefreshToken,
-    Role,
-    Token,
-    User,
-} from '@/types/users.js';
-import type { UUID } from 'crypto';
-import type { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+  NewAdmin,
+  NewEditor,
+  RefreshToken,
+  Role,
+  Token,
+  User,
+} from '@/types/users.js'
+import type { UUID } from 'crypto'
+import type { Request, Response } from 'express'
+import jwt from 'jsonwebtoken'
 
 export class UsersController {
   static refreshToken(req: Request, res: Response) {
+    const { refreshToken: cookieRefreshToken } = req.cookies
+    console.log(cookieRefreshToken)
     const { userId, role } = jwt.verify(
-      req.cookies?.['refreshToken'],
+      cookieRefreshToken,
       jwtSecret,
     ) as RefreshToken
 
@@ -32,7 +36,7 @@ export class UsersController {
         httpOnly: true,
         sameSite: 'strict',
         secure: true,
-        maxAge: 15 * 60 * 1000 /* 15 min */,
+        maxAge: refreshTokenDuration /* 1 week */,
       })
       .json({ accessToken })
   }
@@ -86,7 +90,7 @@ export class UsersController {
           httpOnly: true,
           sameSite: 'strict',
           secure: true,
-          maxAge: 7 * 24 * 60 * 60 * 1000 /* 1 week */,
+          maxAge: refreshTokenDuration /* 1 week */,
         })
         .json({ accessToken })
     } catch (error) {
@@ -102,6 +106,21 @@ export class UsersController {
       res.render('dashboard', { id, username })
     } catch (error) {
       return handleErrors(res, error)
+    }
+  }
+
+  static async getAllUsers(req: Request, res: Response) {
+    try {
+      const { authorization } = req.headers
+      if (!authorization) throw new UnauthorizedError('No estás autorizado')
+      const accessToken = authorization?.split(' ')[1]?.trim() as string
+      const decodedToken = jwt.verify(accessToken, jwtSecret) as RefreshToken
+      if (decodedToken.role !== 'admin')
+        throw new ForbiddenError('No tenes permisos para ver esta información')
+      const users = await SqliteModel.getAllUsers()
+      return res.status(200).json(users)
+    } catch (error) {
+      handleErrors(res, error)
     }
   }
 

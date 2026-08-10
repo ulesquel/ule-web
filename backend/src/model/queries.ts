@@ -29,6 +29,8 @@ export class SqlQueries {
     'SELECT username FROM users WHERE id_user = @value',
   )
 
+  allUsersPrepared = db.prepare('SELECT id_user, username, role FROM users')
+
   insertFestsPrepared = writerDb.prepare(
     'INSERT INTO fests (id_fest, frequency, name, objective, description, init_date, end_date, address, fest_type, img) VALUES (@id_fest, @frequency, @name, @objective, @description, @init_date, @end_date, @address, @fest_type, @img)',
   )

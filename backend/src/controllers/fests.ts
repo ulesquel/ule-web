@@ -1,13 +1,18 @@
-import type { Request, Response } from 'express'
-import { SqliteModel } from '@/model/sqlite.js'
-import type { Type } from '@/types/types.js'
 import { handleErrors } from '@/controllers/utilities/handle-errors.js'
+import { NotFoundError } from '@/errors/errors.js'
+import { SqliteModel } from '@/model/sqlite.js'
+import type { FestObject, Type } from '@/types/types.js'
+import type { Request, Response } from 'express'
 
 export class FestController {
   static getAll(req: Request, res: Response) {
     try {
       const { fest } = req.query
-      const fests = SqliteModel.getAllFests((fest as Type) ?? '')
+      const fests = SqliteModel.getAllFests(
+        (fest as Type) ?? '',
+      ) as FestObject[]
+      if (fests.length === 0)
+        throw new NotFoundError('No hay tarjetas de ningún tipo aún')
       return res.json(fests)
     } catch (error) {
       return handleErrors(res, error)
