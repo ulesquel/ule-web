@@ -6,6 +6,7 @@
       <title>Dashboard</title>
     </head>
     <body>
+      <button id="close-session">Cerrar sesión</button>
       <main>
         <h1>
           Hola <%= username %>
@@ -31,6 +32,7 @@
         const accessToken = window.localStorage.getItem('accessToken')
         const $tbody = document.querySelector('tbody')
         const $cardsSection = document.querySelector('#cards')
+        const $closeSession = document.querySelector('#close-session')
 
         const [allUsersRes, allFestsRes] = await Promise.all([
           fetch('/users/', {
@@ -73,30 +75,46 @@
         if (allFestsRes.status === 404) {
           const { message } = await allFestsRes.json()
           $cardsSection.textContent = message
-        }
-
-        const fests = await allFestsRes.json()
-        fests.map(fest => {
-          const { id_fest, name, frequency, objective, description, init_date, end_date, address, fest_type, img } = fest
-          $cardsSection.innerHTML += `
-            <article id="${id_fest}" class="card">
-              <img src="${img}" />
-              <h4>${name}</h4>
-              <span class="badge">${fest_type}</span>
-              <p>${description}</p>
-              <h5>Objetivo:</h5>
-              <p>${objective}</p>
-              <div class="dates">
+        } else {
+          const fests = await allFestsRes.json()
+            fests.map(fest => {
+                const { id_fest, name, frequency, objective, description, init_date, end_date, address, fest_type, img } = fest
+                $cardsSection.innerHTML += `
+                <article id="${id_fest}" class="card">
+                <img src="${img}" />
+                <h4>${name}</h4>
+                <span class="badge">${fest_type}</span>
+                <p>${description}</p>
+                <h5>Objetivo:</h5>
+                <p>${objective}</p>
+                <div class="dates">
                 <h5>Horarios</h5>
                 <time datetime="${init_date}">${init_date.split('T')[0]}, ${init_date.split('T')[1]}</time>
                 -
                 <time datetime="${end_date}">${end_date.split('T')[0]}, ${end_date.split('T')[1]}</time>
-              </div>
-              <h5>Lugar de encuentro:</h5>
-              <address>${address}</address>
-              <span>Frecuencia: ${frequency}</span>
-            </article>
-          `
+                </div>
+                <h5>Lugar de encuentro:</h5>
+                <address>${address}</address>
+                <span>Frecuencia: ${frequency}</span>
+                </article>
+                `
+            })
+        }
+
+        $closeSession.addEventListener('click', () => {
+          fetch('/users/logout')
+            .then(res => res.json())
+            .then(data => {
+              const { message } = data
+              alert(message)
+              setTimeout(() => {
+                window.location.reload()
+              }, 1000)
+            })
+            .catch(error => {
+              const { message } = data.json()
+              alert(message)
+            })
         })
       </script>
     </body>
