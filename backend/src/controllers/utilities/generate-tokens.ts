@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken'
-import { jwtSecret } from '@/config.js'
-import type { Role } from '@/types/users.js'
+import { jwtSecret } from '@/configs/app.js';
+import type { Role } from '@/types/users.js';
+import jwt from 'jsonwebtoken';
 
 export function generateTokensPair(payload: { userId: string; role: Role }) {
   const tokenId = crypto.randomUUID()
