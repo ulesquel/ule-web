@@ -1,6 +1,11 @@
-import Database, { type Database as DbType } from 'better-sqlite3'
-import { v2 } from 'cloudinary'
-import path from 'node:path'
+import { db, writerDb } from '@/configs/db.js'
+import {
+  BadRequestError,
+  DatabaseConnectionError,
+  NotFoundError,
+  UnauthorizedError,
+} from '@/errors/errors.js'
+import { SqlQueries } from '@/model/queries.js'
 import type { FestObject, Type } from '@/types/types.js'
 import type {
   Admin,
@@ -8,95 +13,23 @@ import type {
   FiltersKeys,
   NewAdmin,
   NewEditor,
+  Role,
   Token,
   User,
 } from '@/types/users.js'
-import { SqliteError } from 'better-sqlite3'
-import { hash, type UUID } from 'node:crypto'
-import {
-  BadRequestError,
-  DatabaseConnectionError,
-  NotFoundError,
-  UnauthorizedError,
-} from '@/errors/errors.js'
 import bcrypt from 'bcrypt'
+import { SqliteError } from 'better-sqlite3'
+import { v2 } from 'cloudinary'
+import { hash, type UUID } from 'node:crypto'
 
-const __dirname = path.resolve()
 const saltRounds = 10
 const { uploader } = v2
-
-const db: DbType = new Database(path.join(__dirname, 'db/database.db'), {
-  timeout: 13000,
-  fileMustExist: true,
-  verbose: console.log,
-  readonly: true,
-})
-
-const writerDb: DbType = new Database(path.join(__dirname, 'db/database.db'), {
-  timeout: 13000,
-  fileMustExist: true,
-  verbose: console.log,
-})
 
 db.pragma('foreign_keys = ON')
 writerDb.pragma('foreign_keys = ON')
 
 export class SqliteModel {
-  private static userPrepared = db.prepare(
-    'SELECT id_user, username, password, role FROM users WHERE username = ?',
-  )
-
-  private static festsPrepared = db.prepare(
-    'SELECT id_fest, frequency, name, objective, description, init_date, end_date, address, fest_type, img FROM fests WHERE fest_type = ?',
-  )
-
-  private static festsPreparedWithoutFestTypeConditional = db.prepare(
-    'SELECT id_fest, frequency, name, objective, description, init_date, end_date, address, fest_type, img FROM fests',
-  )
-
-  private static festByIdPrepared = db.prepare(
-    'SELECT frequency, name, objective, description, init_date, end_date, address, fest_type, img FROM fests WHERE id_fest = ?',
-  )
-
-  private static getRefreshTokenPrepared = db.prepare(
-    'SELECT token, id_user FROM refresh_tokens WHERE token = ?',
-  )
-
-  private static getRefreshTokenByTokenIdPrepared = db.prepare(
-    'SELECT id_refresh_token FROM refresh_tokens WHERE id_refresh_token = ?',
-  )
-
-  private static getUserByIdPrepared = db.prepare(
-    'SELECT username FROM users WHERE id_user = @value',
-  )
-
-  private static insertFestsPrepared = writerDb.prepare(
-    'INSERT INTO fests (id_fest, frequency, name, objective, description, init_date, end_date, address, fest_type, img) VALUES (@id_fest, @frequency, @name, @objective, @description, @init_date, @end_date, @address, @fest_type, @img)',
-  )
-
-  private static deleteFestPrepared = writerDb.prepare(
-    'DELETE FROM fests WHERE id_fest = ?',
-  )
-
-  private static insertUserPrepared = writerDb.prepare(
-    'INSERT INTO users (id_user, username, password, role) VALUES (@id_user, @username, @password, @role)',
-  )
-
-  private static insertRefreshTokenPrepared = writerDb.prepare(
-    'INSERT INTO refresh_tokens (id_refresh_token, token, id_user) VALUES (@id_refresh_token, @token, @id_user)',
-  )
-
-  private static deleteRefreshTokenPrepared = writerDb.prepare(
-    'DELETE FROM refresh_tokens WHERE token = ?',
-  )
-
-  private static deleteAllUserTokensPrepared = writerDb.prepare(
-    'DELETE FROM refresh_tokens WHERE id_user = ?',
-  )
-
-  private static deleteUserPrepared = writerDb.prepare(
-    'DELETE FROM users WHERE id_user = ?',
-  )
+  private static sqlQueries: SqlQueries = new SqlQueries()
 
   private static catchErrors(error: unknown) {
     if (error instanceof BadRequestError) {
@@ -123,7 +56,7 @@ export class SqliteModel {
   static getFest(id: string): FestObject | void {
     try {
       if (id === '') throw new BadRequestError('Pase una ID')
-      const fest = this.festByIdPrepared.get(id) as FestObject
+      const fest = this.sqlQueries.festByIdPrepared.get(id) as FestObject
       if (typeof fest === 'undefined')
         throw new NotFoundError('No se encontró ninguna jornada')
       return fest
@@ -132,11 +65,11 @@ export class SqliteModel {
     }
   }
 
-  static getAllFests(type: Type): FestObject[] | void {
+  static getAllFests(type: Type = ''): FestObject[] | void {
     try {
       if (type === '')
-        return this.festsPreparedWithoutFestTypeConditional.all() as FestObject[]
-      const fests = this.festsPrepared.all(type) as FestObject[]
+        return this.sqlQueries.festsPreparedWithoutFestTypeConditional.all() as FestObject[]
+      const fests = this.sqlQueries.festsPrepared.all(type) as FestObject[]
       if (fests.length === 0) {
         throw new NotFoundError(`No hay alguna jornada registrada`)
       }
@@ -156,7 +89,7 @@ export class SqliteModel {
 
       const id_fest = hash('sha256', JSON.stringify(fest))
 
-      const currentFests = this.festsPrepared.all(
+      const currentFests = this.sqlQueries.festsPrepared.all(
         fest.fest_type,
       ) as FestObject[]
       if (
@@ -168,7 +101,7 @@ export class SqliteModel {
         overwrite: true,
         public_id: name.split(' ').join('_').toLowerCase(),
       })
-      const { changes } = this.insertFestsPrepared.run({
+      const { changes } = this.sqlQueries.insertFestsPrepared.run({
         ...fest,
         id_fest,
         img: imageUploaded.secure_url,
@@ -182,7 +115,7 @@ export class SqliteModel {
   static deleteFest(id: string): string | void {
     try {
       if (id === '') throw new BadRequestError('Pase una ID')
-      const { changes } = this.deleteFestPrepared.run(id)
+      const { changes } = this.sqlQueries.deleteFestPrepared.run(id)
       if (changes === 0)
         throw new NotFoundError('No se encontró ninguna jornada para eliminar')
       return `Se eliminó ${changes} jornada`
@@ -197,7 +130,7 @@ export class SqliteModel {
     role,
   }: NewEditor | NewAdmin): Promise<string | void> {
     try {
-      const user = this.userPrepared.get(username)
+      const user = this.sqlQueries.userPrepared.get(username)
 
       if (user)
         throw new BadRequestError(
@@ -215,7 +148,7 @@ export class SqliteModel {
         role,
       }
 
-      const { changes } = this.insertUserPrepared.run(newUser)
+      const { changes } = this.sqlQueries.insertUserPrepared.run(newUser)
       if (changes === 0)
         throw new Error(
           'No se pudo agregar el nuevo admin por un error desconocido',
@@ -226,12 +159,23 @@ export class SqliteModel {
     }
   }
 
+  static async getAllUsers() {
+    try {
+      const users = this.sqlQueries.allUsersPrepared.all()
+      if (users.length === 0)
+        throw new NotFoundError('No hay usuarios registrados')
+      return users as User<Role>[]
+    } catch (error) {
+      this.catchErrors(error)
+    }
+  }
+
   static async getUser(username: string, password: string) {
     try {
       if (!username || !password)
         throw new BadRequestError('Complete todos los campos')
 
-      const user = this.userPrepared.get(username) as Admin | Editor
+      const user = this.sqlQueries.userPrepared.get(username) as Admin | Editor
 
       if (typeof user === 'undefined')
         throw new NotFoundError('Revise la contraseña o el nombre de usuario')
@@ -249,8 +193,9 @@ export class SqliteModel {
 
   static getRefreshToken(token: string) {
     try {
-      const foundToken = this.getRefreshTokenPrepared.get(token) as
-        Token | undefined
+      const foundToken = this.sqlQueries.getRefreshTokenPrepared.get(token) as
+        | Token
+        | undefined
       if (typeof foundToken === 'undefined')
         throw new UnauthorizedError('No está autorizado, no existe un token')
       return foundToken
@@ -265,7 +210,7 @@ export class SqliteModel {
     userId: string,
   ) {
     try {
-      const { changes } = this.insertRefreshTokenPrepared.run({
+      const { changes } = this.sqlQueries.insertRefreshTokenPrepared.run({
         id_refresh_token: tokenId,
         token,
         id_user: userId,
@@ -279,7 +224,7 @@ export class SqliteModel {
 
   static deleteRefreshToken(token: string): void {
     try {
-      this.deleteRefreshTokenPrepared.run(token)
+      this.sqlQueries.deleteRefreshTokenPrepared.run(token)
       return
     } catch (error) {
       this.catchErrors(error)
@@ -288,7 +233,7 @@ export class SqliteModel {
 
   static revokeAllTokensForUser(userId: string): void {
     try {
-      this.deleteAllUserTokensPrepared.run(userId)
+      this.sqlQueries.deleteAllUserTokensPrepared.run(userId)
       return
     } catch (error) {
       this.catchErrors(error)
@@ -297,7 +242,8 @@ export class SqliteModel {
 
   static validateToken(userId: string, tokenId: UUID /* The jti */): void {
     try {
-      const token = this.getRefreshTokenByTokenIdPrepared.get(tokenId)
+      const token =
+        this.sqlQueries.getRefreshTokenByTokenIdPrepared.get(tokenId)
       if (typeof token === 'undefined') {
         this.revokeAllTokensForUser(userId)
         throw new UnauthorizedError(
@@ -315,7 +261,7 @@ export class SqliteModel {
       if (!id)
         throw new BadRequestError('Pase una ID de usuario para eliminar uno')
 
-      const { changes } = this.deleteUserPrepared.run(id)
+      const { changes } = this.sqlQueries.deleteUserPrepared.run(id)
 
       if (changes === 0)
         throw new NotFoundError('No se encontró el usuario a eliminar')
@@ -329,7 +275,7 @@ export class SqliteModel {
   static getUserBy(filter: FiltersKeys, value: string) {
     try {
       if (filter === 'id_user') {
-        const filteredUser = this.getUserByIdPrepared.get({ value })
+        const filteredUser = this.sqlQueries.getUserByIdPrepared.get({ value })
         if (!filteredUser)
           throw new NotFoundError(
             `No se encontró el usuario con ${filter} ${value}`,

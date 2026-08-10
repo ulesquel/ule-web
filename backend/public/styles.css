@@ -1,0 +1,110 @@
+:root {
+  --color-ule: #ff6201;
+}
+
+* {
+  box-sizing: content-box;
+  padding: 0;
+  margin: 0;
+  font-family:
+    Ubuntu,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Cantarell,
+    'Open Sans',
+    'Helvetica Neue',
+    sans-serif;
+}
+
+main {
+  padding-bottom: 4rem;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-align: center;
+  }
+
+  h1 {
+    margin-block: 2rem;
+  }
+
+  h2 {
+    margin-block: 1rem;
+  }
+
+  table {
+    width: 95%;
+    border-collapse: collapse;
+    margin-inline: auto;
+
+    thead {
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: white;
+      background-color: var(--color-ule);
+    }
+
+    tbody {
+      border: 1px solid color-mix(in srgb, var(--color-ule), black 20%);
+    }
+  }
+
+  tr {
+    display: flex;
+
+    td,
+    th {
+      flex: 1;
+      padding: 5px;
+      text-align: center;
+    }
+
+    td:nth-child(1) {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &:nth-child(even) {
+      background-color: color-mix(in srgb, var(--color-ule), white 70%);
+
+      &:hover {
+        background-color: color-mix(in srgb, var(--color-ule), white 50%);
+      }
+    }
+  }
+
+  #cards {
+    width: 95%;
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    place-items: center;
+
+    .card {
+      max-width: 25rem;
+      padding: 1rem 0;
+      width: 100%;
+      text-align: center;
+      border: 1px solid #ff6201;
+
+      img {
+        aspect-ratio: 10/6;
+        width: 100%;
+        height: auto;
+      }
+
+      h5 {
+        margin-top: 1.5rem;
+      }
+    }
+  }
+}

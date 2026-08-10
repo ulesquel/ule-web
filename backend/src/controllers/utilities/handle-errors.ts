@@ -1,6 +1,7 @@
 import {
   BadRequestError,
   DatabaseConnectionError,
+  ForbiddenError,
   NotFoundError,
   UnauthorizedError,
 } from '@/errors/errors.js'
@@ -24,9 +25,9 @@ export const handleErrors = (res: Response, error: unknown) => {
     error instanceof jwt.JsonWebTokenError ||
     error instanceof UnauthorizedError
   ) {
-    return res.status(401).json({
-      message: 'No estás autorizado',
-    })
+    return res.status(401).json({ message: error.message })
+  } else if (error instanceof ForbiddenError) {
+    return res.status(403).json({ message: error.message })
   } else {
     console.log(error)
     return res.status(500).json({
