@@ -1,0 +1,11 @@
+<dialog id="add-new-card-dialog">
+  <button id="close-dialog">&xotime;</button>
+  <button>+ Guardar nueva tarjeta</button>
+</dialog>
+
+<script type="module">
+  const $addNewCardDialog = document.querySelector('#add-new-card-dialog')
+  const $closeDialog = document.querySelector('#close-dialog')
+
+  $closeDialog.addEventListener('click', () => $addNewCardDialog.close())
+</script>

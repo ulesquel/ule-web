@@ -27,12 +27,14 @@
         <h2>Tarjetas</h2>
         <section id="cards">
         </section>
+        <%- include('components/new-card-form.ejs') %>
       </main>
       <script type="module">
         const accessToken = window.localStorage.getItem('accessToken')
         const $tbody = document.querySelector('tbody')
         const $cardsSection = document.querySelector('#cards')
         const $closeSession = document.querySelector('#close-session')
+        const $addNewCardDialog = document.querySelector('#add-new-card-dialog')
 
         const [allUsersRes, allFestsRes] = await Promise.all([
           fetch('/users/', {
@@ -55,50 +57,66 @@
           $tbody.textContent = message
         }
 
+
+        const renderUsers = (users) => {
+          if (!Array.isArray(users)) {
+            $tbody.textContent = 'Usuarios no validos, algo malo ocurrió'
+          }
+
+          users.map(user => {
+            const { id_user, username, role } = user
+
+            $tbody.innerHTML += `
+              <tr>
+                <td id="${id_user}" title="${id_user}">${id_user}</td>
+                <td>${username}</td>
+                <td>${role}</td>
+                <td>
+                  <div>
+                    <button>Editar datos</button>  
+                    <button>Eliminar usuario</button>  
+                  </div>  
+                </td>
+              </tr>
+            `
+          })
+        }
+
         const users = await allUsersRes.json()
-        users.map(user => {
-          $tbody.innerHTML += `
-            <tr>
-              <td id="${user.id_user}" title="${user.id_user}">${user.id_user}</td>
-              <td>${user.username}</td>
-              <td>${user.role}</td>
-              <td>
-                <div>
-                  <button>Editar datos</button>  
-                  <button>Eliminar usuario</button>  
-                </div>  
-              </td>
-            </tr>
-          `
-        })
+        renderUsers(users)
 
         if (allFestsRes.status === 404) {
+          const $addNewCardsButton = document.createElement('button')
+          $addNewCardsButton.popoverTargetElement = $addNewCardDialog
+          $addNewCardsButton.textContent = '+ Agregar una nueva tarjeta'
+          $addNewCardsButton.onclick = () => $addNewCardDialog.showModal();
           const { message } = await allFestsRes.json()
           $cardsSection.textContent = message
+          $cardsSection.appendChild($addNewCardsButton)
         } else {
           const fests = await allFestsRes.json()
-            fests.map(fest => {
-                const { id_fest, name, frequency, objective, description, init_date, end_date, address, fest_type, img } = fest
-                $cardsSection.innerHTML += `
-                <article id="${id_fest}" class="card">
-                <img src="${img}" />
-                <h4>${name}</h4>
-                <span class="badge">${fest_type}</span>
-                <p>${description}</p>
-                <h5>Objetivo:</h5>
-                <p>${objective}</p>
-                <div class="dates">
+          fests.map(fest => {
+            const { id_fest, name, frequency, objective, description, init_date, end_date, address, fest_type, img } = fest
+            $cardsSection.innerHTML += `
+            <article id="${id_fest}" class="card">
+              <img src="${img}" />
+              <h4>${name}</h4>
+              <span class="badge">${fest_type}</span>
+              <p>${description}</p>
+              <h5>Objetivo:</h5>
+              <p>${objective}</p>
+              <div class="dates">
                 <h5>Horarios</h5>
                 <time datetime="${init_date}">${init_date.split('T')[0]}, ${init_date.split('T')[1]}</time>
                 -
                 <time datetime="${end_date}">${end_date.split('T')[0]}, ${end_date.split('T')[1]}</time>
-                </div>
-                <h5>Lugar de encuentro:</h5>
-                <address>${address}</address>
-                <span>Frecuencia: ${frequency}</span>
-                </article>
-                `
-            })
+              </div>
+              <h5>Lugar de encuentro:</h5>
+              <address>${address}</address>
+              <span>Frecuencia: ${frequency}</span>
+            </article>
+            `
+          })
         }
 
         $closeSession.addEventListener('click', () => {
