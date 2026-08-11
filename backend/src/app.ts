@@ -24,8 +24,12 @@ app.set('view engine', 'ejs')
 app.set('views', `${process.cwd()}/src/views`)
 app.use(express.static(`${process.cwd()}/public`))
 
-app.get('/', (_, res) => {
-  res.render('login')
+app.get('/', (req, res) => {
+  const { refreshToken } = req.cookies
+  if (refreshToken) {
+    return res.redirect('/users/dashboard')
+  }
+  return res.render('login')
 })
 
 app.use('/fests', festRouter)
