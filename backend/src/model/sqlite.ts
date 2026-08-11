@@ -124,11 +124,11 @@ export class SqliteModel {
     }
   }
 
-  static async register({
+  static register({
     username,
     password,
     role,
-  }: NewEditor | NewAdmin): Promise<string | void> {
+  }: NewEditor | NewAdmin): string | void {
     try {
       const user = this.sqlQueries.userPrepared.get(username)
 
@@ -159,18 +159,18 @@ export class SqliteModel {
     }
   }
 
-  static async getAllUsers() {
+  static getAllUsers() {
     try {
-      const users = this.sqlQueries.allUsersPrepared.all()
+      const users = this.sqlQueries.allUsersPrepared.all() as User<Role>[] | []
       if (users.length === 0)
         throw new NotFoundError('No hay usuarios registrados')
-      return users as User<Role>[]
+      return users
     } catch (error) {
       this.catchErrors(error)
     }
   }
 
-  static async getUser(username: string, password: string) {
+  static getUser(username: string, password: string) {
     try {
       if (!username || !password)
         throw new BadRequestError('Complete todos los campos')
@@ -224,7 +224,8 @@ export class SqliteModel {
 
   static deleteRefreshToken(token: string): void {
     try {
-      this.sqlQueries.deleteRefreshTokenPrepared.run(token)
+      const { changes } = this.sqlQueries.deleteRefreshTokenPrepared.run(token)
+      console.log(`${changes} tokens removed`)
       return
     } catch (error) {
       this.catchErrors(error)
