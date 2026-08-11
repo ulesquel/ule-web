@@ -1,18 +1,19 @@
 import { type Request, type Response } from 'express'
 import morgan from 'morgan'
 
+type Status = 200 | 300 | 400 | 500
+
 const colorStatus = (status: string | number | undefined) => {
+  const COLORED_CODES = {
+    // <Status Code>: <colored ANSI code>
+    500: 31,
+    400: 33,
+    300: 36,
+    200: 32,
+  }
   const code = Number(status) || 0
-  const colorCode =
-    code >= 500
-      ? 31
-      : code >= 400
-        ? 33
-        : code >= 300
-          ? 36
-          : code >= 200
-            ? 32
-            : 0
+  const colorCode: (typeof COLORED_CODES)[keyof typeof COLORED_CODES] =
+    COLORED_CODES[(Number(code.toString().split('')[0]) * 100) as Status] ?? 0
 
   if (colorCode === 0) {
     return String(code)
