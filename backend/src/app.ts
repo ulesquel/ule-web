@@ -1,17 +1,17 @@
 import { PORT, isOnDev } from '@/configs/app.js'
 import cloudinaryConfig from '@/middlewares/cloudinary.js'
+import { logger } from '@/middlewares/logger.js'
 import festRouter from '@/routes/fests.js'
 import usersRouter from '@/routes/users.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
-import morgan from 'morgan'
 
 const app = express()
 
 app.disable('x-powered-by')
 
-app.use(morgan('dev'))
+app.use(logger)
 app.use(
   cors(),
   // TODO: Set the origin to the ULE page
