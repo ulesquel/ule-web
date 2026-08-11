@@ -61,8 +61,11 @@ export class UsersController {
 
   @trycatch
   static login(req: Request, res: Response) {
+    const { refreshToken: currentRefreshToken } = req.cookies
     const { body } = req
     const { username, password } = body
+
+    if (currentRefreshToken) return res.redirect('/users/dashboard')
 
     const { id_user: userId, role } = SqliteModel.getUser(
       username,
