@@ -21,6 +21,11 @@
               <th>Acciones</th>
             </tr>
           </thead>
+          <tfoot>
+            <td>
+              <button>+ Agregar nuevo usuario</button>
+            </td>
+          </tfoot>
           <tbody>
           </tbody>
         </table>
@@ -70,7 +75,7 @@
               <tr>
                 <td id="${id_user}" title="${id_user}">${id_user}</td>
                 <td>${username}</td>
-                <td>${role}</td>
+                <td data-${role}>${role}</td>
                 <td>
                   <div>
                     <button>Editar datos</button>  
@@ -85,13 +90,23 @@
         const users = await allUsersRes.json()
         renderUsers(users)
 
+        const createAddCardButton = () => {
+          const $button = document.createElement('button')
+          $button.id = 'add-new-card'
+          $button.textContent = '+ Agregar una nueva tarjeta'
+          $button.onclick = () => $addNewCardDialog.showModal();
+
+          return $button
+        }
+
         if (allFestsRes.status === 404) {
-          const $addNewCardsButton = document.createElement('button')
-          $addNewCardsButton.popoverTargetElement = $addNewCardDialog
-          $addNewCardsButton.textContent = '+ Agregar una nueva tarjeta'
-          $addNewCardsButton.onclick = () => $addNewCardDialog.showModal();
+          const $addNewCardsButton = createAddCardButton()
+          const $span = document.createElement('span')
+          $span.textContent = 'Agrega una nueva para comenzar a mostrarlas a los usuarios ↴'
+
           const { message } = await allFestsRes.json()
-          $cardsSection.textContent = message
+          $cardsSection.textContent = `${message}`
+          $cardsSection.appendChild($span)
           $cardsSection.appendChild($addNewCardsButton)
         } else {
           const fests = await allFestsRes.json()
