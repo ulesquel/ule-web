@@ -1,17 +1,17 @@
-import { PORT, isOnDev } from '@/configs/app.js'
+import { PORT, nodeEnv } from '@/configs/app.js'
 import cloudinaryConfig from '@/middlewares/cloudinary.js'
+import { logger } from '@/middlewares/logger.js'
 import festRouter from '@/routes/fests.js'
 import usersRouter from '@/routes/users.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
-import morgan from 'morgan'
 
 const app = express()
 
 app.disable('x-powered-by')
 
-app.use(morgan('dev'))
+app.use(logger)
 app.use(
   cors(),
   // TODO: Set the origin to the ULE page
@@ -24,13 +24,17 @@ app.set('view engine', 'ejs')
 app.set('views', `${process.cwd()}/src/views`)
 app.use(express.static(`${process.cwd()}/public`))
 
-app.get('/', (_, res) => {
-  res.render('login')
+app.get('/', (req, res) => {
+  const { refreshToken } = req.cookies
+  if (refreshToken) {
+    return res.redirect('/users/dashboard')
+  }
+  return res.render('login')
 })
 
 app.use('/fests', festRouter)
 app.use('/users', usersRouter)
 
-if (isOnDev) {
+if (nodeEnv === 'dev') {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
 }

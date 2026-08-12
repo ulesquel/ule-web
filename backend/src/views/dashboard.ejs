@@ -6,6 +6,7 @@
       <title>Dashboard</title>
     </head>
     <body>
+      <%- include('components/header.ejs', {isOnDashboard: true}) %>
       <main>
         <h1>
           Hola <%= username %>
@@ -20,17 +21,25 @@
               <th>Acciones</th>
             </tr>
           </thead>
+          <tfoot>
+            <td>
+              <button>+ Agregar nuevo usuario</button>
+            </td>
+          </tfoot>
           <tbody>
           </tbody>
         </table>
         <h2>Tarjetas</h2>
         <section id="cards">
         </section>
+        <%- include('components/new-card-form.ejs') %>
       </main>
       <script type="module">
         const accessToken = window.localStorage.getItem('accessToken')
         const $tbody = document.querySelector('tbody')
         const $cardsSection = document.querySelector('#cards')
+        const $closeSession = document.querySelector('#close-session')
+        const $addNewCardDialog = document.querySelector('#add-new-card-dialog')
 
         const [allUsersRes, allFestsRes] = await Promise.all([
           fetch('/users/', {
@@ -53,32 +62,57 @@
           $tbody.textContent = message
         }
 
-        const users = await allUsersRes.json()
-        users.map(user => {
-          $tbody.innerHTML += `
-            <tr>
-              <td id="${user.id_user}" title="${user.id_user}">${user.id_user}</td>
-              <td>${user.username}</td>
-              <td>${user.role}</td>
-              <td>
-                <div>
-                  <button>Editar datos</button>  
-                  <button>Eliminar usuario</button>  
-                </div>  
-              </td>
-            </tr>
-          `
-        })
 
-        if (allFestsRes.status === 404) {
-          const { message } = await allFestsRes.json()
-          $cardsSection.textContent = message
+        const renderUsers = (users) => {
+          if (!Array.isArray(users)) {
+            $tbody.textContent = 'Usuarios no validos, algo malo ocurrió'
+          }
+
+          users.map(user => {
+            const { id_user, username, role } = user
+
+            $tbody.innerHTML += `
+              <tr>
+                <td id="${id_user}" title="${id_user}">${id_user}</td>
+                <td>${username}</td>
+                <td data-${role}>${role}</td>
+                <td>
+                  <div>
+                    <button>Editar datos</button>  
+                    <button>Eliminar usuario</button>  
+                  </div>  
+                </td>
+              </tr>
+            `
+          })
         }
 
-        const fests = await allFestsRes.json()
-        fests.map(fest => {
-          const { id_fest, name, frequency, objective, description, init_date, end_date, address, fest_type, img } = fest
-          $cardsSection.innerHTML += `
+        const users = await allUsersRes.json()
+        renderUsers(users)
+
+        const createAddCardButton = () => {
+          const $button = document.createElement('button')
+          $button.id = 'add-new-card'
+          $button.textContent = '+ Agregar una nueva tarjeta'
+          $button.onclick = () => $addNewCardDialog.showModal();
+
+          return $button
+        }
+
+        if (allFestsRes.status === 404) {
+          const $addNewCardsButton = createAddCardButton()
+          const $span = document.createElement('span')
+          $span.textContent = 'Agrega una nueva para comenzar a mostrarlas a los usuarios ↴'
+
+          const { message } = await allFestsRes.json()
+          $cardsSection.textContent = `${message}`
+          $cardsSection.appendChild($span)
+          $cardsSection.appendChild($addNewCardsButton)
+        } else {
+          const fests = await allFestsRes.json()
+          fests.map(fest => {
+            const { id_fest, name, frequency, objective, description, init_date, end_date, address, fest_type, img } = fest
+            $cardsSection.innerHTML += `
             <article id="${id_fest}" class="card">
               <img src="${img}" />
               <h4>${name}</h4>
@@ -96,7 +130,29 @@
               <address>${address}</address>
               <span>Frecuencia: ${frequency}</span>
             </article>
-          `
+            `
+          })
+        }
+
+        $closeSession.addEventListener('click', () => {
+          const confirmation = confirm('¿Querés cerrar la sesión?')
+          if (confirmation) {
+            fetch('/users/logout')
+              .then(res => res.json())
+              .then(data => {
+                const { message } = data
+                alert(message)
+                setTimeout(() => {
+                  window.location.reload()
+                }, 1000)
+              })
+              .catch(error => {
+                const { message } = data.json()
+                alert(message)
+              })
+            return
+          }
+          return
         })
       </script>
     </body>
