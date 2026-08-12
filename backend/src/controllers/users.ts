@@ -1,6 +1,5 @@
 import { jwtSecret } from '@/configs/app.js'
 import { refreshTokenDuration } from '@/constants.js'
-import { generateTokensPair } from '@/controllers/utilities/generate-tokens.js'
 import { ForbiddenError, UnauthorizedError } from '@/errors/errors.js'
 import { SqliteModel } from '@/model/sqlite.js'
 import type {
@@ -11,10 +10,11 @@ import type {
   Token,
   User,
 } from '@/types/users.js'
+import { trycatch } from '@/utilities/decorators.js'
+import { generateTokensPair } from '@/utilities/generate-tokens.js'
 import type { UUID } from 'crypto'
 import type { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { trycatch } from './utilities/decorators.js'
 
 export class UsersController {
   @trycatch
@@ -83,7 +83,7 @@ export class UsersController {
     )
 
     if (rowsChanged === 0)
-      return res.status(500).json({ message: 'No se pudo guardar el token' })
+      return res.status(500).json({ message: 'No se pudo guardar el token.' })
 
     return res
       .cookie('refreshToken', refreshToken, {
@@ -110,7 +110,7 @@ export class UsersController {
     const accessToken = authorization?.split(' ')[1]?.trim() as string
     const decodedToken = jwt.verify(accessToken, jwtSecret) as RefreshToken
     if (decodedToken.role !== 'admin')
-      throw new ForbiddenError('No tenes permisos para ver esta información')
+      throw new ForbiddenError('No tenes permisos para ver esta información.')
     const users = SqliteModel.getAllUsers()
     return res.status(200).json(users)
   }
