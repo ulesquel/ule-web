@@ -1,4 +1,4 @@
-import { PORT, isOnDev } from '@/configs/app.js'
+import { PORT, nodeEnv } from '@/configs/app.js'
 import cloudinaryConfig from '@/middlewares/cloudinary.js'
 import { logger } from '@/middlewares/logger.js'
 import festRouter from '@/routes/fests.js'
@@ -35,6 +35,6 @@ app.get('/', (req, res) => {
 app.use('/fests', festRouter)
 app.use('/users', usersRouter)
 
-if (isOnDev) {
+if (nodeEnv === 'dev') {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
 }
