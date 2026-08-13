@@ -84,9 +84,8 @@ export const closeSession = () => {
           window.location.reload()
         }, 1000)
       })
-      .catch((error) => {
-        const { message } = data.json()
-        alert(message)
+      .catch((_) => {
+        alert('Ocurrió un error inesperado')
       })
     return
   }
