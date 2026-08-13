@@ -1,4 +1,4 @@
-type Frequency = 'daily' | 'weekly' | 'biweekly' | 'monthly'
+export type Frequency = 'daily' | 'weekly' | 'biweekly' | 'monthly'
 
 export type Type = 'workshop' | 'event' | 'competition' | ''
 
