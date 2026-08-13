@@ -153,7 +153,7 @@ export class SqliteModel {
         throw new Error(
           'No se pudo agregar el nuevo admin por un error desconocido',
         )
-      return 'Se agregó un nuevo administrador'
+      return `Se agregó un nuevo ${role}`
     } catch (error) {
       this.catchErrors(error)
     }

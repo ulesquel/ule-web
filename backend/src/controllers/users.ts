@@ -49,14 +49,10 @@ export class UsersController {
     ) as RefreshToken
 
     if (decodedToken.role !== 'admin')
-      return res
-        .status(401)
-        .json({ message: 'No estás autorizado para esta acción' })
+      throw new ForbiddenError('No tenés permisos para crear nuevos usuarios.')
     const { username, password, role }: NewAdmin | NewEditor = req.body
-    console.log(decodedToken)
-    console.log(username, password, role)
-    // const message = await SqliteModel.register({username, password, role})
-    return res.status(201).json({ message: 'testing' })
+    const message = SqliteModel.register({ username, password, role })
+    return res.status(201).json({ message })
   }
 
   @trycatch
@@ -99,8 +95,11 @@ export class UsersController {
   static renderDashboard(req: Request, res: Response) {
     const { refreshToken } = req.cookies
     const { id_user: id } = SqliteModel.getRefreshToken(refreshToken) as Token
-    const { username } = SqliteModel.getUserBy('id_user', id) as User<Role>
-    res.render('dashboard', { id, username })
+    const { username, role } = SqliteModel.getUserBy(
+      'id_user',
+      id,
+    ) as User<Role>
+    res.render('dashboard', { id, username, role })
   }
 
   @trycatch

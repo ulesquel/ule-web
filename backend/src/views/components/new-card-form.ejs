@@ -1,5 +1,5 @@
 <dialog id="add-new-card-dialog">
-  <button id="close-dialog">❌</button>
+  <button id="close-card-dialog">❌</button>
   <h2>Crear nueva tarjeta</h2>
   <form id="new-card-form" enctype="multipart/form-data">
     <label>
@@ -42,7 +42,10 @@
       Imagen
       <input type="file" id="img" />
     </label>
-    <button type="submit" id="save-card">+ Guardar nueva tarjeta</button>
+    <div class="card-form-actions">
+      <button type="reset" id="cancel-create-card">Cancelar</button>
+      <button type="submit" id="save-card">+ Guardar nueva tarjeta</button>
+    </div>
   </form>
 </dialog>
 
@@ -61,7 +64,7 @@
   }
 
   const $addNewCardDialog = document.querySelector('#add-new-card-dialog')
-  const $closeDialog = document.querySelector('#close-dialog')
+  const $closeCardDialog = document.querySelector('#close-card-dialog')
   const $name = document.querySelector('#name')
   const $frequency = document.querySelector('#frequency')
   const $festType = document.querySelector('#fest_type')
@@ -71,6 +74,7 @@
   const $endDate = document.querySelector('#end_date')
   const $address = document.querySelector('#address')
   const $img = document.querySelector('#img')
+  const $cancelCreateCard = document.querySelector('#cancel-create-card')
 
   Object.keys(frequencies).forEach((freq) => {
     $frequency.innerHTML += `<option id="${freq}" value="${freq}">${frequencies[freq]}</option>`
@@ -80,5 +84,6 @@
     $festType.innerHTML += `<option id="${fest}" value="${fest}">${festTypes[fest]}</option>`
   })
 
-  $closeDialog.addEventListener('click', () => $addNewCardDialog.close())
+  $cancelCreateCard.addEventListener('click', () => $addNewCardDialog.close())
+  $closeCardDialog.addEventListener('click', () => $addNewCardDialog.close())
 </script>
