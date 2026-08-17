@@ -1,0 +1,264 @@
+---
+import Footer from '@/components/core/Footer.astro'
+import Header from '@/components/core/Header.astro'
+import Layout from '@/layouts/Layout.astro'
+import type { Fest, FetchError, FetchSuccess, UserData } from '@/types/types'
+import type { AstroCookieSetOptions } from 'astro'
+
+const api = import.meta.env.API_URL
+const nodeEnv = import.meta.env.NODE_ENV
+
+const refreshToken = Astro.cookies.get('refreshToken')?.value ?? ''
+const accessToken = Astro.cookies.get('accessToken')?.value ?? ''
+const accessTokenCookieOptions: AstroCookieSetOptions = {
+  httpOnly: true,
+  sameSite: 'lax',
+  maxAge: 15 * 60,
+  secure: nodeEnv === 'production',
+  path: '/',
+}
+const refreshTokenCookieOptions: AstroCookieSetOptions = {
+  httpOnly: true,
+  sameSite: 'lax',
+  maxAge: 7 * 24 * 60 * 60,
+  secure: nodeEnv === 'production',
+  path: '/',
+}
+
+const redirectionPath = '/administration'
+if (!refreshToken) return Astro.redirect(redirectionPath)
+
+const deleteAllCookies = () => {
+  Astro.cookies.delete('refreshToken', refreshTokenCookieOptions)
+  Astro.cookies.delete('accessToken', accessTokenCookieOptions)
+}
+
+const getData = async <T extends any>(
+  endpoint: string,
+): Promise<FetchError | FetchSuccess<T>> => {
+  try {
+    const res = await fetch(`${api}${endpoint}`, {
+      method: 'get',
+      headers: {
+        Cookie: `refreshToken=${refreshToken}`,
+        Authorization: `Bearer ${accessToken}`,
+      },
+      credentials: 'include',
+    })
+
+    if (res.status === 423) {
+      const { message } = await res.json()
+      deleteAllCookies()
+      return {
+        status: 'error',
+        error: {
+          message,
+        },
+        code: res.status,
+      } as FetchError
+    }
+
+    if (res.status >= 300) {
+      const { message } = await res.json()
+      return {
+        status: 'error',
+        error: {
+          message,
+        },
+        code: res.status,
+      } as FetchError
+    }
+    const data = await res.json()
+    return { status: 'success', data } as FetchSuccess<T>
+  } catch (error) {
+    console.log(error)
+    return {
+      status: 'error',
+      error: {
+        message:
+          'Un error inesperado ha ocurrido. Estamos trabajando para solucionarlo.',
+      },
+    } as FetchError
+  }
+}
+
+const [userData, festData, allUserData] = await Promise.all([
+  getData<Omit<UserData, 'id_user'>>('users/dashboard/'),
+  getData<Fest[]>('fests/'),
+  getData<UserData[]>('users/'),
+])
+
+if (userData.status === 'error') {
+  if (userData.code === 302) {
+    return Astro.redirect(redirectionPath)
+  }
+}
+
+if (allUserData.status === 'error') {
+  if (allUserData.code === 418) {
+    Astro.cookies.delete('refreshToken')
+    Astro.cookies.delete('accessToken')
+    await fetch(`${api}users/refresh`, {
+      method: 'get',
+      headers: {
+        Cookie: `refreshToken=${refreshToken}`,
+      },
+      credentials: 'include',
+    })
+      .then((res) => {
+        return res.json()
+      })
+      .then((data) => {
+        const { refreshToken, accessToken } = data
+        Astro.cookies.set('accessToken', accessToken, accessTokenCookieOptions)
+        Astro.cookies.set(
+          'refreshToken',
+          refreshToken,
+          refreshTokenCookieOptions,
+        )
+      })
+    return Astro.redirect(Astro.url.pathname)
+  }
+}
+const { username, role } =
+  userData.status === 'success' ? (userData.data as UserData) : {}
+
+export const prerender = false
+---
+
+<Layout
+  title="Panel de administración"
+  description="Panel de administración de editores, administradores y eventos"
+>
+  <Header isOnDashboard={true} />
+  <section>
+    <h1 class="text-4xl font-bold text-center my-8">
+      Hola {username}
+    </h1>
+    {
+      role === 'admin' ? (
+        <>
+          <h2 class="text-center text-3xl font-bold my-6">Usuarios</h2>
+          <table class="w-[95%] border-collapse mx-auto shadow-buttons boder border-[color-mix(in_srgb,var(--color-ule),black_20%)]">
+            <thead class="font-extrabold text-[1.2rem] text-white bg-ule">
+              <tr class="flex [&>th]:w-full [&>th]:p-1 [&>th]:my-1 [&>th]:text-center">
+                <th>Id de usuario</th>
+                <th>Nombre</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allUserData.status === 'success' ? (
+                allUserData.data.map((user) => {
+                  const { id_user, username, role } = user
+                  return (
+                    <tr class="flex transition-colors [&>td]:p-1 [&>td]:my-1 [&>td]:text-center [&>td]:w-full [&>td]:nth-[1]:whitespace-nowrap [&>td]:nth-[1]:overflow-hidden [&>td]:nth-[1]:text-ellipsis even:bg-amber-50 even:hover:bg-amber-100 odd:bg-gray-100 odd:hover:bg-gray-200 items-center">
+                      <td id={id_user} title={id_user}>
+                        {id_user}
+                      </td>
+                      <td>{username}</td>
+                      {role === 'admin' ? (
+                        <td
+                          data-admin
+                          class="bg-center bg-clip-border font-bold bg-no-repeat bg-contain w-full capitalize rounded-sm"
+                        >
+                          {role}
+                        </td>
+                      ) : (
+                        <td
+                          data-editor
+                          class="bg-center bg-clip-border font-bold bg-no-repeat bg-contain w-full capitalize rounded-sm text-white"
+                        >
+                          {role}
+                        </td>
+                      )}
+                      <td>
+                        <div>
+                          <button>Editar datos</button>
+                          <button>Eliminar usuario</button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })
+              ) : (
+                <p>{allUserData.error.message}</p>
+              )}
+            </tbody>
+            <tfoot class="bg-white">
+              <td class="m-0 text-center p-0">
+                <button
+                  id="add-new-user"
+                  class="bg-ule w-full text-white text-base py-2.5 px-2 font-bold hover:outline-none hover:bg-[color-mix(in_srgb,var(--color-ule),white_10%)] focus:bg-[color-mix(in_srgb,var(--color-ule),white_10%)] hover:cursor-pointer transition-all hover:shadow-on-hover"
+                >
+                  + Agregar nuevo usuario
+                </button>
+              </td>
+            </tfoot>
+          </table>
+        </>
+      ) : null
+    }
+    <h2 class="text-center text-3xl font-bold my-8">Tarjetas</h2>
+    <section
+      id="cards"
+      class="flex items-center justify-center w-full mx-auto flex-col"
+    >
+      {
+        festData.status === 'success' ? (
+          festData.data.map((fest) => {
+            const {
+              id_fest,
+              img,
+              name,
+              fest_type,
+              description,
+              objective,
+              init_date,
+              end_date,
+              address,
+              frequency,
+            } = fest
+            return (
+              <article id={id_fest} class="card">
+                <img src={img} />
+                <h4>{name}</h4>
+                <span class="badge">${fest_type}</span>
+                <p>{description}</p>
+                <h5>Objetivo:</h5>
+                <p>{objective}</p>
+                <div class="dates">
+                  <h5>Horarios</h5>
+                  <time datetime={init_date}>
+                    {init_date.split('T')[0]}, {init_date.split('T')[1]}
+                  </time>
+                  -
+                  <time datetime={end_date}>
+                    {end_date.split('T')[0]}, {end_date.split('T')[1]}
+                  </time>
+                </div>
+                <h5>Lugar de encuentro:</h5>
+                <address>{address}</address>
+                <span>Frecuencia: {frequency}</span>
+              </article>
+            )
+          })
+        ) : festData.code === 404 ? (
+          <div class="flex flex-col items-center">
+            <p>{festData.error.message}</p>
+            <p>Agregá una nueva para comenzar a mostrarlas a los usuarios ↴</p>
+          </div>
+        ) : (
+          <p>{festData.error.message}</p>
+        )
+      }
+      <button
+        id="add-new-card"
+        class="bg-ule border-none transition-all text-white font-bold text-base py-2.5 px-4 mt-4 shadow-buttons hover:outline-none hover:cursor-pointer hover:bg-[color-mix(in_srgb,var(--color-ule),white_10%)] hover:scale-105 hover:shadow-on-hover"
+        >+ Agregar una nueva tarjeta</button
+      >
+    </section>
+  </section>
+  <Footer />
+</Layout>

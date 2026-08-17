@@ -1,14 +1,61 @@
 ---
-import Ule from "@/assets/ule.svg"
+import Ule from '@/assets/ule.svg'
+
+interface Props {
+  isOnDashboard?: boolean
+}
+
+const { isOnDashboard } = Astro.props
 ---
 
 <header class="bg-ule w-full flex items-center justify-center gap-8">
-
-  <h1 class="text-3xl xl:text-5xl font-semibold tracking-wide text-white [&>span]:text-right flex flex-col [&>span]:py-2">
+  {
+    isOnDashboard ? (
+      <div class="absolute left-0 mx-8">
+        <button
+          id="close-session"
+          class="py-3 px-1 shadow-buttons text-[1.1rem] bg-bg-close-session transition-all shadow-[color-mix(in_srgb,var(--color-ule),rgb(97,0,0)_90%)] text-white outline-none font-bold hover:bg-bg-close-session/60 hover:scale-105 hover:shadow-on-hover hover:cursor-pointer focus:bg-bg-close-session/60 focus:scale-105 focus:shadow-on-hover focus:cursor-pointer"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+    ) : null
+  }
+  <h1
+    class="text-3xl xl:text-5xl font-semibold tracking-wide text-white [&>span]:text-right flex flex-col [&>span]:py-2"
+  >
     <span>Usuarios Libres</span>
     <span class="block">de Esquel</span>
   </h1>
- <div class="flex items-center justify-center aspect-square">
+  <div class="flex items-center justify-center aspect-square">
     <Ule />
   </div>
 </header>
+
+<script>
+  const $closeSession = document.querySelector(
+    '#close-session',
+  ) as HTMLButtonElement
+
+  function handleCloseSession() {
+    const confirmation = confirm('¿Querés cerrar la sesión?')
+    if (confirmation) {
+      fetch('http://localhost:3000/users/logout', { credentials: 'include' })
+        .then((res) => res.json())
+        .then((data) => {
+          const { message } = data
+          alert(message)
+          setTimeout(() => {
+            window.location.reload()
+          }, 1000)
+        })
+        .catch((_) => {
+          alert('Ocurrió un error inesperado')
+        })
+      return
+    }
+    return
+  }
+
+  $closeSession.addEventListener('click', handleCloseSession)
+</script>

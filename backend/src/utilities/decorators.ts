@@ -8,7 +8,8 @@ export function trycatch(value: Function, { kind }: DecoratorContext) {
         const returnedValue = value.call(this, ...args)
         return returnedValue
       } catch (error) {
-        return handleErrors(args[1], error)
+        const [_, res] = args
+        return handleErrors(res, error)
       }
     }
   }

@@ -1,4 +1,5 @@
 import { db, writerDb } from '@/configs/db.js'
+import { UNAUTHORIZED_MESSAGES } from '@/constants.js'
 import {
   BadRequestError,
   DatabaseConnectionError,
@@ -197,7 +198,9 @@ export class SqliteModel {
         | Token
         | undefined
       if (typeof foundToken === 'undefined')
-        throw new UnauthorizedError('No está autorizado, no existe un token')
+        throw new UnauthorizedError(
+          UNAUTHORIZED_MESSAGES.REFRESH_TOKEN_NOT_FOUND,
+        )
       return foundToken
     } catch (error) {
       this.catchErrors(error)
@@ -216,6 +219,7 @@ export class SqliteModel {
         id_user: userId,
       })
 
+      console.log(`${changes} new token saved`)
       return changes
     } catch (error) {
       this.catchErrors(error)
@@ -225,7 +229,7 @@ export class SqliteModel {
   static deleteRefreshToken(token: string): void {
     try {
       const { changes } = this.sqlQueries.deleteRefreshTokenPrepared.run(token)
-      console.log(`${changes} tokens removed`)
+      console.log(`${changes} token removed`)
       return
     } catch (error) {
       this.catchErrors(error)
@@ -234,7 +238,9 @@ export class SqliteModel {
 
   static revokeAllTokensForUser(userId: string): void {
     try {
-      this.sqlQueries.deleteAllUserTokensPrepared.run(userId)
+      const { changes } =
+        this.sqlQueries.deleteAllUserTokensPrepared.run(userId)
+      console.log(`${changes} tokens removed`)
       return
     } catch (error) {
       this.catchErrors(error)
@@ -247,9 +253,7 @@ export class SqliteModel {
         this.sqlQueries.getRefreshTokenByTokenIdPrepared.get(tokenId)
       if (typeof token === 'undefined') {
         this.revokeAllTokensForUser(userId)
-        throw new UnauthorizedError(
-          'Este token no es válido, revocando todos los tokens',
-        )
+        throw new UnauthorizedError(UNAUTHORIZED_MESSAGES.INVALID_TOKEN)
       }
       return
     } catch (error) {

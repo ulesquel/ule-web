@@ -1,3 +1,4 @@
+import { UNAUTHORIZED_MESSAGES } from '@/constants.js'
 import {
   BadRequestError,
   DatabaseConnectionError,
@@ -9,9 +10,13 @@ import type { Response } from 'express'
 import jwt from 'jsonwebtoken'
 
 export const handleErrors = (res: Response, error: unknown) => {
-  console.error('================================================')
-  console.error(error)
-  console.error('================================================')
+  console.error(
+    '\x1b[1;31m================================================\x1b[0m',
+  )
+  console.error(`\x1b[1;31m${error}\x1b[0m`)
+  console.error(
+    '\x1b[1;31m================================================\x1b[0m',
+  )
 
   if (error instanceof BadRequestError) {
     return res.status(400).json({
@@ -20,9 +25,17 @@ export const handleErrors = (res: Response, error: unknown) => {
   }
 
   if (
-    error instanceof jwt.JsonWebTokenError ||
-    error instanceof UnauthorizedError
+    error instanceof UnauthorizedError ||
+    error instanceof jwt.JsonWebTokenError
   ) {
+    if (error.message === UNAUTHORIZED_MESSAGES.NEED_ACCESS_TOKEN)
+      return res.status(418).json({ message: error.message })
+    if (error.message === UNAUTHORIZED_MESSAGES.INVALID_TOKEN)
+      return res
+        .status(423) // Devuelve un 423 indicando que es un recurso bloqueado, principalmente para que en SSR se eliminen las cookies detectando que es un error 423a
+        .clearCookie('refreshToken')
+        .clearCookie('accessToken')
+        .json({ message: error.message })
     return res.status(401).json({ message: error.message })
   }
 
