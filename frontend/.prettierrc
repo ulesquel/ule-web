@@ -1,12 +1,18 @@
 {
-  "plugins": [
-    "prettier-plugin-astro"
-  ],
+  "plugins": ["prettier-plugin-astro"],
   "overrides": [
     {
-      "files": "*.astro",
+      "files": "./src/**/*.astro",
       "options": {
         "parser": "astro",
+        "semi": false,
+        "singleQuote": true
+      }
+    },
+    {
+      "files": "*.ts",
+      "options": {
+        "tabWidth": 2,
         "semi": false,
         "singleQuote": true
       }
