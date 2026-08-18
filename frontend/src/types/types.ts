@@ -10,6 +10,11 @@ export interface UserData {
   role: 'admin' | 'editor'
 }
 
+export interface LoginData {
+  username: string
+  password: string
+}
+
 export interface Fest {
   id_fest: string
   frequency: Frequency

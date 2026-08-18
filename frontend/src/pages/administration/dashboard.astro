@@ -1,4 +1,5 @@
 ---
+import UsersTable from '@/components/administration/users/UsersTable.astro'
 import Footer from '@/components/core/Footer.astro'
 import Header from '@/components/core/Header.astro'
 import Layout from '@/layouts/Layout.astro'
@@ -82,20 +83,20 @@ const getData = async <T extends any>(
   }
 }
 
-const [userData, festData, allUserData] = await Promise.all([
+const [userRes, festRes, allUserRes] = await Promise.all([
   getData<Omit<UserData, 'id_user'>>('users/dashboard/'),
   getData<Fest[]>('fests/'),
   getData<UserData[]>('users/'),
 ])
 
-if (userData.status === 'error') {
-  if (userData.code === 302) {
+if (userRes.status === 'error') {
+  if (userRes.code === 302) {
     return Astro.redirect(redirectionPath)
   }
 }
 
-if (allUserData.status === 'error') {
-  if (allUserData.code === 418) {
+if (allUserRes.status === 'error') {
+  if (allUserRes.code === 418) {
     Astro.cookies.delete('refreshToken')
     Astro.cookies.delete('accessToken')
     await fetch(`${api}users/refresh`, {
@@ -121,7 +122,9 @@ if (allUserData.status === 'error') {
   }
 }
 const { username, role } =
-  userData.status === 'success' ? (userData.data as UserData) : {}
+  userRes.status === 'success' ? (userRes.data as UserData) : {}
+
+const { data: allUsers } = allUserRes as FetchSuccess<UserData[]>
 
 export const prerender = false
 ---
@@ -132,82 +135,29 @@ export const prerender = false
 >
   <Header isOnDashboard={true} />
   <section>
-    <h1 class="text-4xl font-bold text-center my-8">
+    <h1 class="my-8 text-center text-4xl font-bold tracking-wider">
       Hola {username}
     </h1>
     {
       role === 'admin' ? (
         <>
-          <h2 class="text-center text-3xl font-bold my-6">Usuarios</h2>
-          <table class="w-[95%] border-collapse mx-auto shadow-buttons boder border-[color-mix(in_srgb,var(--color-ule),black_20%)]">
-            <thead class="font-extrabold text-[1.2rem] text-white bg-ule">
-              <tr class="flex [&>th]:w-full [&>th]:p-1 [&>th]:my-1 [&>th]:text-center">
-                <th>Id de usuario</th>
-                <th>Nombre</th>
-                <th>Rol</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allUserData.status === 'success' ? (
-                allUserData.data.map((user) => {
-                  const { id_user, username, role } = user
-                  return (
-                    <tr class="flex transition-colors [&>td]:p-1 [&>td]:my-1 [&>td]:text-center [&>td]:w-full [&>td]:nth-[1]:whitespace-nowrap [&>td]:nth-[1]:overflow-hidden [&>td]:nth-[1]:text-ellipsis even:bg-amber-50 even:hover:bg-amber-100 odd:bg-gray-100 odd:hover:bg-gray-200 items-center">
-                      <td id={id_user} title={id_user}>
-                        {id_user}
-                      </td>
-                      <td>{username}</td>
-                      {role === 'admin' ? (
-                        <td
-                          data-admin
-                          class="bg-center bg-clip-border font-bold bg-no-repeat bg-contain w-full capitalize rounded-sm"
-                        >
-                          {role}
-                        </td>
-                      ) : (
-                        <td
-                          data-editor
-                          class="bg-center bg-clip-border font-bold bg-no-repeat bg-contain w-full capitalize rounded-sm text-white"
-                        >
-                          {role}
-                        </td>
-                      )}
-                      <td>
-                        <div>
-                          <button>Editar datos</button>
-                          <button>Eliminar usuario</button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })
-              ) : (
-                <p>{allUserData.error.message}</p>
-              )}
-            </tbody>
-            <tfoot class="bg-white">
-              <td class="m-0 text-center p-0">
-                <button
-                  id="add-new-user"
-                  class="bg-ule w-full text-white text-base py-2.5 px-2 font-bold hover:outline-none hover:bg-[color-mix(in_srgb,var(--color-ule),white_10%)] focus:bg-[color-mix(in_srgb,var(--color-ule),white_10%)] hover:cursor-pointer transition-all hover:shadow-on-hover"
-                >
-                  + Agregar nuevo usuario
-                </button>
-              </td>
-            </tfoot>
-          </table>
+          <h2 class="my-6 text-center text-3xl font-bold">Usuarios</h2>
+          {allUserRes.status === 'success' ? (
+            <UsersTable users={allUsers} />
+          ) : (
+            <p>{allUserRes.error.message}</p>
+          )}
         </>
       ) : null
     }
-    <h2 class="text-center text-3xl font-bold my-8">Tarjetas</h2>
+    <h2 class="my-8 text-center text-3xl font-bold">Tarjetas</h2>
     <section
       id="cards"
-      class="flex items-center justify-center w-full mx-auto flex-col"
+      class="mx-auto flex w-full flex-col items-center justify-center"
     >
       {
-        festData.status === 'success' ? (
-          festData.data.map((fest) => {
+        festRes.status === 'success' ? (
+          festRes.data.map((fest) => {
             const {
               id_fest,
               img,
@@ -244,18 +194,18 @@ export const prerender = false
               </article>
             )
           })
-        ) : festData.code === 404 ? (
+        ) : festRes.code === 404 ? (
           <div class="flex flex-col items-center">
-            <p>{festData.error.message}</p>
+            <p>{festRes.error.message}</p>
             <p>Agregá una nueva para comenzar a mostrarlas a los usuarios ↴</p>
           </div>
         ) : (
-          <p>{festData.error.message}</p>
+          <p>{festRes.error.message}</p>
         )
       }
       <button
         id="add-new-card"
-        class="bg-ule border-none transition-all text-white font-bold text-base py-2.5 px-4 mt-4 shadow-buttons hover:outline-none hover:cursor-pointer hover:bg-[color-mix(in_srgb,var(--color-ule),white_10%)] hover:scale-105 hover:shadow-on-hover"
+        class="bg-ule shadow-buttons hover:shadow-on-hover mt-4 border-none px-4 py-2.5 text-base font-bold text-white transition-all hover:scale-105 hover:cursor-pointer hover:bg-[color-mix(in_srgb,var(--color-ule),white_10%)] hover:outline-none"
         >+ Agregar una nueva tarjeta</button
       >
     </section>

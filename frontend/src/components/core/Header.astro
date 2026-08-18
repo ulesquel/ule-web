@@ -8,13 +8,13 @@ interface Props {
 const { isOnDashboard } = Astro.props
 ---
 
-<header class="bg-ule w-full flex items-center justify-center gap-8">
+<header class="bg-ule flex w-full items-center justify-center gap-8">
   {
     isOnDashboard ? (
       <div class="absolute left-0 mx-8">
         <button
           id="close-session"
-          class="py-3 px-1 shadow-buttons text-[1.1rem] bg-bg-close-session transition-all shadow-[color-mix(in_srgb,var(--color-ule),rgb(97,0,0)_90%)] text-white outline-none font-bold hover:bg-bg-close-session/60 hover:scale-105 hover:shadow-on-hover hover:cursor-pointer focus:bg-bg-close-session/60 focus:scale-105 focus:shadow-on-hover focus:cursor-pointer"
+          class="shadow-buttons bg-bg-close-session hover:bg-bg-close-session/60 hover:shadow-on-hover focus:bg-bg-close-session/60 focus:shadow-on-hover px-1 py-3 text-[1.1rem] font-bold text-white shadow-[color-mix(in_srgb,var(--color-ule),rgb(97,0,0)_90%)] transition-all outline-none hover:scale-105 hover:cursor-pointer focus:scale-105 focus:cursor-pointer"
         >
           Cerrar sesión
         </button>
@@ -22,12 +22,12 @@ const { isOnDashboard } = Astro.props
     ) : null
   }
   <h1
-    class="text-3xl xl:text-5xl font-semibold tracking-wide text-white [&>span]:text-right flex flex-col [&>span]:py-2"
+    class="flex flex-col text-3xl font-semibold tracking-wide text-white xl:text-5xl [&>span]:py-2 [&>span]:text-right"
   >
     <span>Usuarios Libres</span>
     <span class="block">de Esquel</span>
   </h1>
-  <div class="flex items-center justify-center aspect-square">
+  <div class="flex aspect-square items-center justify-center">
     <Ule />
   </div>
 </header>
@@ -57,5 +57,5 @@ const { isOnDashboard } = Astro.props
     return
   }
 
-  $closeSession.addEventListener('click', handleCloseSession)
+  $closeSession?.addEventListener('click', handleCloseSession)
 </script>
