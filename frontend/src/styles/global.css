@@ -3,4 +3,80 @@
 @theme {
   --font-ubuntu: "Ubuntu", sans-serif;
   --color-ule: #ff6201;
+  --color-shadow: hsl(from var(--color-ule) h s 20% / 1);
+  --color-bg-close-session: color-mix(in srgb, var(--color-ule), red 50%);
+  --shadow-buttons: 3px 3px 0 var(--color-shadow);
+  --shadow-on-hover: 2px 2px 0 var(--color-shadow);
+}
+
+[type="submit"],
+[type="reset"] {
+  @apply bg-(--own-button-color) border-none transition-all text-white font-bold text-base py-2.5 px-4 mt-4 shadow-buttons;
+  &:hover,
+  &:focus {
+    @apply outline-none cursor-pointer bg-[color-mix(in_srgb,var(--own-button-color),white_10%)] scale-105 shadow-on-hover;
+  }
+}
+
+[type="submit"] {
+  --own-button-color: var(--color-ule);
+}
+
+[type="reset"] {
+  --own-button-color: color-mix(in srgb, var(--color-ule), red 50%);
+}
+
+form {
+  @apply py-8 px-6 flex flex-col mx-auto text-2xl text-white bg-[hsl(from_var(--color-ule)_h_s_60%/1)] shadow-(--shadow);
+
+  label {
+    @apply flex flex-col gap-1 my-3 relative;
+
+    input,
+    select,
+    textarea {
+      @apply border-none px-2 py-2.5 w-full text-[1.1rem] resize-y field-sizing-content text-[#141414];
+
+      &:focus {
+        @apply outline-none;
+      }
+    }
+
+    input:not([type="file"]),
+    select,
+    textarea {
+      @apply bg-white shadow-[3px_3px_0_#b0b0b0,-3px_-3px_0_#eeecec];
+    }
+
+    textarea {
+      @apply min-h-fit;
+    }
+  }
+
+  div {
+    @apply grid grid-cols-2 w-full gap-3 place-items-center;
+    label {
+      @apply w-full;
+
+      select {
+        @apply w-full;
+      }
+    }
+  }
+}
+
+[data-admin] {
+  background-image: radial-gradient(
+    circle farthest-corner at 20% 90%,
+    rgba(255, 229, 145, 1) 0.3%,
+    rgb(255, 161, 60) 100.2%
+  );
+}
+
+[data-editor] {
+  background-image: radial-gradient(
+    circle farthest-corner at 20% 90%,
+    rgb(209, 145, 255) 0.3%,
+    rgb(151, 60, 255) 100.2%
+  );
 }

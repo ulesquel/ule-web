@@ -1,5 +1,9 @@
-import { jwtSecret } from '@/configs/app.js'
-import { refreshTokenDuration } from '@/constants.js'
+import { jwtSecret, nodeEnv } from '@/configs/app.js'
+import {
+  accessTokenDuration,
+  refreshTokenDuration,
+  UNAUTHORIZED_MESSAGES,
+} from '@/constants.js'
 import { ForbiddenError, UnauthorizedError } from '@/errors/errors.js'
 import { SqliteModel } from '@/model/sqlite.js'
 import type {
@@ -17,6 +21,7 @@ import type { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 
 export class UsersController {
+  // Cuando se hace el /refresh el que lo hace en el front es el server, por lo que hay que devolver las cookies en forma de respuesta para que con SSR se agreguen las nuevas cookies
   @trycatch
   static refreshToken(req: Request, res: Response) {
     const { refreshToken: cookieRefreshToken } = req.cookies
@@ -29,16 +34,18 @@ export class UsersController {
 
     const [accessToken, refreshToken, tokenId] = generateTokensPair(payload)
 
-    SqliteModel.saveNewToken(tokenId as string, refreshToken as string, userId)
+    SqliteModel.deleteRefreshToken(cookieRefreshToken)
 
-    return res
-      .cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        sameSite: 'strict',
-        secure: true,
-        maxAge: refreshTokenDuration /* 1 week */,
-      })
-      .json({ accessToken })
+    const rowsChanged = SqliteModel.saveNewToken(
+      tokenId as string,
+      refreshToken as string,
+      userId,
+    )
+
+    if (rowsChanged === 0)
+      return res.status(500).json({ message: 'No se pudo guardar el token.' })
+
+    return res.json({ accessToken, refreshToken })
   }
 
   @trycatch
@@ -49,23 +56,18 @@ export class UsersController {
     ) as RefreshToken
 
     if (decodedToken.role !== 'admin')
-      return res
-        .status(401)
-        .json({ message: 'No estás autorizado para esta acción' })
+      throw new ForbiddenError('No tenés permisos para crear nuevos usuarios.')
     const { username, password, role }: NewAdmin | NewEditor = req.body
-    console.log(decodedToken)
-    console.log(username, password, role)
-    // const message = await SqliteModel.register({username, password, role})
-    return res.status(201).json({ message: 'testing' })
+    const message = SqliteModel.register({ username, password, role })
+    return res.status(201).json({ message })
   }
 
   @trycatch
   static login(req: Request, res: Response) {
     const { refreshToken: currentRefreshToken } = req.cookies
-    const { body } = req
-    const { username, password } = body
+    const { username, password } = req.body
 
-    if (currentRefreshToken) return res.redirect('/users/dashboard')
+    if (currentRefreshToken) return res.status(302).end()
 
     const { id_user: userId, role } = SqliteModel.getUser(
       username,
@@ -88,26 +90,41 @@ export class UsersController {
     return res
       .cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        sameSite: 'strict',
-        secure: true,
+        sameSite: 'lax',
+        secure: nodeEnv === 'production',
         maxAge: refreshTokenDuration /* 1 week */,
       })
-      .json({ accessToken })
+      .cookie('accessToken', accessToken, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: nodeEnv === 'production',
+        maxAge: accessTokenDuration /* 15 min */,
+      })
+      .end()
   }
 
   @trycatch
   static renderDashboard(req: Request, res: Response) {
     const { refreshToken } = req.cookies
+    if (!refreshToken)
+      throw new UnauthorizedError(UNAUTHORIZED_MESSAGES.NEED_LOGIN)
+
     const { id_user: id } = SqliteModel.getRefreshToken(refreshToken) as Token
-    const { username } = SqliteModel.getUserBy('id_user', id) as User<Role>
-    res.render('dashboard', { id, username })
+    const { username, role } = SqliteModel.getUserBy(
+      'id_user',
+      id,
+    ) as User<Role>
+    res.json({ username, role })
   }
 
   @trycatch
   static getAllUsers(req: Request, res: Response) {
     const { authorization } = req.headers
-    if (!authorization) throw new UnauthorizedError('No estás autorizado')
-    const accessToken = authorization?.split(' ')[1]?.trim() as string
+    if (!authorization)
+      throw new UnauthorizedError(UNAUTHORIZED_MESSAGES.NEED_ACCESS_TOKEN)
+    const accessToken = authorization?.split(' ')[1]?.trim() ?? ''
+    if (!accessToken)
+      throw new UnauthorizedError(UNAUTHORIZED_MESSAGES.NEED_ACCESS_TOKEN)
     const decodedToken = jwt.verify(accessToken, jwtSecret) as RefreshToken
     if (decodedToken.role !== 'admin')
       throw new ForbiddenError('No tenes permisos para ver esta información.')
@@ -121,6 +138,7 @@ export class UsersController {
     SqliteModel.deleteRefreshToken(currentToken)
     return res
       .clearCookie('refreshToken')
+      .clearCookie('accessToken')
       .json({ message: 'Cerrando sesión...' })
   }
 

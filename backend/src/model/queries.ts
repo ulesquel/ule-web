@@ -26,7 +26,7 @@ export class SqlQueries {
   )
 
   getUserByIdPrepared = db.prepare(
-    'SELECT username FROM users WHERE id_user = @value',
+    'SELECT username, role FROM users WHERE id_user = @value',
   )
 
   allUsersPrepared = db.prepare('SELECT id_user, username, role FROM users')
