@@ -1,0 +1,68 @@
+---
+import type { UserData } from '@/types/types'
+
+interface Props {
+  users: UserData[]
+}
+
+const { users } = Astro.props
+---
+
+<table
+  class="w-[95%] border-collapse mx-auto shadow-buttons boder border-[color-mix(in_srgb,var(--color-ule),black_20%)]"
+>
+  <thead class="font-extrabold text-[1.2rem] text-white bg-ule">
+    <tr class="flex [&>th]:w-full [&>th]:p-1 [&>th]:my-1 [&>th]:text-center">
+      <th>Id de usuario</th>
+      <th>Nombre</th>
+      <th>Rol</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      users.map((user) => {
+        const { id_user, username, role } = user
+        return (
+          <tr class="flex transition-colors [&>td]:p-1 [&>td]:my-1 [&>td]:text-center [&>td]:w-full [&>td]:nth-[1]:whitespace-nowrap [&>td]:nth-[1]:overflow-hidden [&>td]:nth-[1]:text-ellipsis even:bg-amber-50 even:hover:bg-amber-100 odd:bg-gray-100 odd:hover:bg-gray-200 items-center">
+            <td id={id_user} title={id_user}>
+              {id_user}
+            </td>
+            <td>{username}</td>
+            {role === 'admin' ? (
+              <td
+                data-admin
+                class="bg-center bg-clip-border font-bold bg-no-repeat bg-contain w-full capitalize rounded-sm"
+              >
+                {role}
+              </td>
+            ) : (
+              <td
+                data-editor
+                class="bg-center bg-clip-border font-bold bg-no-repeat bg-contain w-full capitalize rounded-sm text-white"
+              >
+                {role}
+              </td>
+            )}
+            <td>
+              <div>
+                <button>Editar datos</button>
+                <button>Eliminar usuario</button>
+              </div>
+            </td>
+          </tr>
+        )
+      })
+    }
+  </tbody>
+  <tfoot class="bg-white">
+    <td class="m-0 text-center p-0">
+      <button
+        id="add-new-user"
+        class="bg-ule w-full text-white text-base py-2.5 px-2 font-bold hover:outline-none hover:bg-[color-mix(in_srgb,var(--color-ule),white_10%)] focus:bg-[color-mix(in_srgb,var(--color-ule),white_10%)] hover:cursor-pointer transition-all hover:shadow-on-hover"
+      >
+        + Agregar nuevo usuario
+      </button>
+    </td>
+  </tfoot>
+</table>

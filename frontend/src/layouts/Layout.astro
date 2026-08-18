@@ -25,7 +25,11 @@ const { title, description } = Astro.props
     <meta name="description" content={description} />
   </head>
   <body>
-    <section class="grid grid-rows-[auto_1fr_auto] h-dvh font-ubuntu">
+    <div
+      class="absolute inset-0 -z-10 mx-auto h-full w-7/12 bg-[linear-gradient(to_right,#73737320_1px,transparent_1px),linear-gradient(to_bottom,#73737320_1px,transparent_1px)] bg-size-[20px_20px]"
+    >
+    </div>
+    <section class="font-ubuntu grid h-dvh grid-rows-[auto_1fr_auto]">
       <slot />
     </section>
   </body>

@@ -100,7 +100,7 @@ export class UsersController {
         secure: nodeEnv === 'production',
         maxAge: accessTokenDuration /* 15 min */,
       })
-      .end()
+      .json({ message: 'Iniciando sesión...' })
   }
 
   @trycatch

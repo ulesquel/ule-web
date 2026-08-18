@@ -12,14 +12,21 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/react": "^6.0.2",
     "@tailwindcss/vite": "4.3.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "astro": "7.0.6",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-hook-form": "^7.85.0",
     "tailwind-merge": "3.6.0",
     "tailwindcss": "4.3.0"
   },
   "devDependencies": {
     "prettier": "3.8.3",
     "prettier-plugin-astro": "0.14.1",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "7.0.2"
   }
 }

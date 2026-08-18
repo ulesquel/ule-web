@@ -7,19 +7,25 @@
   --color-bg-close-session: color-mix(in srgb, var(--color-ule), red 50%);
   --shadow-buttons: 3px 3px 0 var(--color-shadow);
   --shadow-on-hover: 2px 2px 0 var(--color-shadow);
+  --shadow-input: 3px 3px 0 #b0b0b0, -3px -3px 0 #eeecec;
+}
+
+* {
+  @apply antialiased;
 }
 
 [type="submit"],
 [type="reset"] {
-  @apply bg-(--own-button-color) border-none transition-all text-white font-bold text-base py-2.5 px-4 mt-4 shadow-buttons;
+  @apply shadow-buttons mt-4 border-none bg-(--own-button-color) px-4 py-2.5 text-base leading-6 font-semibold text-white transition-all;
   &:hover,
   &:focus {
-    @apply outline-none cursor-pointer bg-[color-mix(in_srgb,var(--own-button-color),white_10%)] scale-105 shadow-on-hover;
+    @apply shadow-on-hover scale-105 cursor-pointer bg-[color-mix(in_srgb,var(--own-button-color),white_10%)] outline-none;
   }
 }
 
 [type="submit"] {
   --own-button-color: var(--color-ule);
+  @apply tracking-wide;
 }
 
 [type="reset"] {
@@ -27,15 +33,15 @@
 }
 
 form {
-  @apply py-8 px-6 flex flex-col mx-auto text-2xl text-white bg-[hsl(from_var(--color-ule)_h_s_60%/1)] shadow-(--shadow);
+  @apply mx-auto flex flex-col bg-[hsl(from_var(--color-ule)_h_s_60%/1)] px-6 py-8 text-2xl text-white shadow-(--shadow);
 
   label {
-    @apply flex flex-col gap-1 my-3 relative;
+    @apply relative my-3 flex flex-col gap-1;
 
     input,
     select,
     textarea {
-      @apply border-none px-2 py-2.5 w-full text-[1.1rem] resize-y field-sizing-content text-[#141414];
+      @apply mt-1 field-sizing-content w-full resize-y border-none px-2 py-2.5 text-[1.1rem] text-[#141414];
 
       &:focus {
         @apply outline-none;
@@ -45,7 +51,7 @@ form {
     input:not([type="file"]),
     select,
     textarea {
-      @apply bg-white shadow-[3px_3px_0_#b0b0b0,-3px_-3px_0_#eeecec];
+      @apply shadow-input bg-white;
     }
 
     textarea {
@@ -54,7 +60,7 @@ form {
   }
 
   div {
-    @apply grid grid-cols-2 w-full gap-3 place-items-center;
+    @apply grid w-full grid-cols-2 place-items-center gap-3;
     label {
       @apply w-full;
 
