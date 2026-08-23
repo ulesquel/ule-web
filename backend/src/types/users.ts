@@ -1,7 +1,10 @@
 import type { UUID } from 'crypto'
 import { type JwtPayload } from 'jsonwebtoken'
 
-export type Role = 'admin' | 'editor'
+export enum Role {
+  Admin = 'admin',
+  Editor = 'editor',
+}
 
 export type User<T extends Role> = {
   id_user: UUID
@@ -13,11 +16,11 @@ export type User<T extends Role> = {
 export type FiltersKeys = keyof Omit<User<Role>, 'password'>
 
 type Public<T> = Omit<T, 'password' | 'id_user'>
-type New<T> = Omit<T, 'id_user'>
+type New<T> = Omit<T, 'id_user'> & { confirmPassword: string }
 
-export type Admin = User<'admin'>
+export type Admin = User<Role.Admin>
 
-export type Editor = User<'editor'>
+export type Editor = User<Role.Editor>
 
 export type PublicAdmin = Public<Admin>
 
