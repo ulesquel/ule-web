@@ -4,7 +4,7 @@ import {
   refreshTokenDuration,
   UNAUTHORIZED_MESSAGES,
 } from '@/constants.js'
-import { ForbiddenError, UnauthorizedError } from '@/errors/errors.js'
+import { BadRequestError, UnauthorizedError } from '@/errors/errors.js'
 import { SqliteModel } from '@/model/sqlite.js'
 import type {
   NewAdmin,
@@ -16,6 +16,7 @@ import type {
 } from '@/types/users.js'
 import { trycatch } from '@/utilities/decorators.js'
 import { generateTokensPair } from '@/utilities/generate-tokens.js'
+import { Validator } from '@/utilities/validations.js'
 import type { UUID } from 'crypto'
 import type { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
@@ -50,14 +51,18 @@ export class UsersController {
 
   @trycatch
   static register(req: Request, res: Response) {
-    const decodedToken = jwt.verify(
-      req.cookies?.['refreshToken'],
-      jwtSecret,
-    ) as RefreshToken
+    const { authorization } = req.headers
 
-    if (decodedToken.role !== 'admin')
-      throw new ForbiddenError('No tenés permisos para crear nuevos usuarios.')
-    const { username, password, role }: NewAdmin | NewEditor = req.body
+    Validator.authorization(authorization)
+
+    const registerData: NewAdmin | NewEditor = req.body
+
+    const { username, password, role } = Validator.newUser(registerData)
+
+    const existingUser = SqliteModel.getUser(username, password)
+
+    if (existingUser) throw new BadRequestError('Este usuario ya existe')
+
     const message = SqliteModel.register({ username, password, role })
     return res.status(201).json({ message })
   }
@@ -120,14 +125,8 @@ export class UsersController {
   @trycatch
   static getAllUsers(req: Request, res: Response) {
     const { authorization } = req.headers
-    if (!authorization)
-      throw new UnauthorizedError(UNAUTHORIZED_MESSAGES.NEED_ACCESS_TOKEN)
-    const accessToken = authorization?.split(' ')[1]?.trim() ?? ''
-    if (!accessToken)
-      throw new UnauthorizedError(UNAUTHORIZED_MESSAGES.NEED_ACCESS_TOKEN)
-    const decodedToken = jwt.verify(accessToken, jwtSecret) as RefreshToken
-    if (decodedToken.role !== 'admin')
-      throw new ForbiddenError('No tenes permisos para ver esta información.')
+    Validator.authorization(authorization)
+
     const users = SqliteModel.getAllUsers()
     return res.status(200).json(users)
   }
@@ -145,6 +144,10 @@ export class UsersController {
   @trycatch
   static delete(req: Request, res: Response) {
     const { id } = req.params
+    const { authorization } = req.headers
+
+    Validator.authorization(authorization)
+
     SqliteModel.deleteUser({ id } as { id: UUID })
     res.status(204).json({})
   }
