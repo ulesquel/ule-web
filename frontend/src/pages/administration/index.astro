@@ -1,5 +1,5 @@
 ---
-import LoginForm from '@/components/administration/users/LoginForm'
+import LoginForm from '@/components/administration/users/forms/Login'
 import Footer from '@/components/core/Footer.astro'
 import Header from '@/components/core/Header.astro'
 import Layout from '@/layouts/Layout.astro'
@@ -18,7 +18,7 @@ export const prerender = false
   <Header />
   <main id="login-container" class="grid h-8/12 place-items-center">
     <h1 class="text-ule my-8 text-center text-4xl font-bold">Iniciar sesión</h1>
-    <LoginForm client:load />
+    <LoginForm client:only />
   </main>
   <Footer />
 </Layout>

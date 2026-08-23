@@ -129,7 +129,9 @@ export class SqliteModel {
     username,
     password,
     role,
-  }: NewEditor | NewAdmin): string | void {
+  }: Omit<NewEditor, 'confirmPassword'> | Omit<NewAdmin, 'confirmPassword'>):
+    | string
+    | void {
     try {
       const user = this.sqlQueries.userPrepared.get(username)
 

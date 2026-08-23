@@ -1,0 +1,55 @@
+---
+import RegisterForm from '@/components/administration/users/forms/Register'
+import Footer from '@/components/core/Footer.astro'
+import Header from '@/components/core/Header.astro'
+import {
+accessTokenCookieOptions,
+refreshTokenCookieOptions,
+} from '@/constants'
+import Layout from '@/layouts/Layout.astro'
+
+const refreshToken = Astro.cookies.get('refreshToken')?.value ?? ''
+const accessToken = Astro.cookies.get('accessToken')?.value ?? ''
+const API_URL = import.meta.env.API_URL
+
+if (!accessToken) {
+  Astro.cookies.delete('refreshToken')
+  Astro.cookies.delete('accessToken')
+  await fetch(`${API_URL}users/refresh`, {
+    method: 'get',
+    headers: {
+      Cookie: `refreshToken=${refreshToken}`,
+    },
+    credentials: 'include',
+  })
+    .then((res) => {
+      return res.json()
+    })
+    .then((tokens) => {
+      const { refreshToken, accessToken } = tokens
+      Astro.cookies.set('accessToken', accessToken, accessTokenCookieOptions)
+      Astro.cookies.set('refreshToken', refreshToken, refreshTokenCookieOptions)
+    })
+}
+
+export const prerender = false
+---
+
+<Layout
+  title="Registro de usuarios"
+  description="Registrar nuevos editores y administradores"
+>
+  <Header />
+  <main id="login-container" class="grid h-full place-items-center pb-8">
+    <h1 class="text-ule my-8 text-center text-4xl font-bold">
+      Registrar nuevo usuario
+    </h1>
+    <RegisterForm
+      client:only
+      apiUrl={API_URL}
+      refreshToken={refreshToken}
+      accessToken={accessToken}
+    />
+  </main>
+  <Footer />
+</Layout>

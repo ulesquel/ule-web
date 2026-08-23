@@ -4,16 +4,26 @@ export type Frequency = 'daily' | 'weekly' | 'biweekly' | 'monthly'
 
 export type Type = 'workshop' | 'event' | 'competition' | ''
 
+export enum Role {
+  ADMIN = 'admin',
+  EDITOR = 'editor',
+}
+
 export interface UserData {
   id_user: string
   username: string
-  role: 'admin' | 'editor'
+  password: string
+  role: Role
 }
 
-export interface LoginData {
-  username: string
-  password: string
+export type RegisterUserData = Pick<
+  UserData,
+  'username' | 'password' | 'role'
+> & {
+  confirmPassword: string
 }
+
+export type LoginData = Pick<UserData, 'username' | 'password'>
 
 export interface Fest {
   id_fest: string
