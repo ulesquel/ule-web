@@ -2,29 +2,17 @@
 import UsersTable from '@/components/administration/users/UsersTable.astro'
 import Footer from '@/components/core/Footer.astro'
 import Header from '@/components/core/Header.astro'
+import {
+accessTokenCookieOptions,
+refreshTokenCookieOptions,
+} from '@/constants'
 import Layout from '@/layouts/Layout.astro'
 import type { Fest, FetchError, FetchSuccess, UserData } from '@/types/types'
-import type { AstroCookieSetOptions } from 'astro'
 
 const api = import.meta.env.API_URL
-const nodeEnv = import.meta.env.NODE_ENV
 
 const refreshToken = Astro.cookies.get('refreshToken')?.value ?? ''
 const accessToken = Astro.cookies.get('accessToken')?.value ?? ''
-const accessTokenCookieOptions: AstroCookieSetOptions = {
-  httpOnly: true,
-  sameSite: 'lax',
-  maxAge: 15 * 60,
-  secure: nodeEnv === 'production',
-  path: '/',
-}
-const refreshTokenCookieOptions: AstroCookieSetOptions = {
-  httpOnly: true,
-  sameSite: 'lax',
-  maxAge: 7 * 24 * 60 * 60,
-  secure: nodeEnv === 'production',
-  path: '/',
-}
 
 const redirectionPath = '/administration'
 if (!refreshToken) return Astro.redirect(redirectionPath)
@@ -109,8 +97,8 @@ if (allUserRes.status === 'error') {
       .then((res) => {
         return res.json()
       })
-      .then((data) => {
-        const { refreshToken, accessToken } = data
+      .then((tokens) => {
+        const { refreshToken, accessToken } = tokens
         Astro.cookies.set('accessToken', accessToken, accessTokenCookieOptions)
         Astro.cookies.set(
           'refreshToken',
