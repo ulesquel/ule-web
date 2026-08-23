@@ -10,9 +10,9 @@ import jwt from 'jsonwebtoken'
 
 export default function (req: Request, res: Response, next: NextFunction) {
   const { refreshToken } = req.cookies
-  if (!refreshToken)
-    throw new UnauthorizedError(UNAUTHORIZED_MESSAGES.NEED_LOGIN)
   try {
+    if (!refreshToken)
+      throw new UnauthorizedError(UNAUTHORIZED_MESSAGES.NEED_LOGIN)
     const decodedToken = jwt.verify(refreshToken, jwtSecret) as RefreshToken
     const { userId, jti } = decodedToken
 
