@@ -35,6 +35,7 @@
     "typescript": "6.0.3"
   },
   "dependencies": {
+    "@tursodatabase/serverless": "^1.4.0",
     "bcrypt": "6.0.0",
     "better-sqlite3": "12.11.1",
     "cloudinary": "2.10.0",

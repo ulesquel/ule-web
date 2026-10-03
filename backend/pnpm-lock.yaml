@@ -207,6 +207,9 @@ importers:
 
   .:
     dependencies:
+      '@tursodatabase/serverless':
+        specifier: ^1.4.0
+        version: 1.4.0
       bcrypt:
         specifier: 6.0.0
         version: 6.0.0
@@ -441,6 +444,9 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@tursodatabase/serverless@1.4.0':
+    resolution: {integrity: sha512-ZU3T76NG/E0NTKULqJ9TggJfbdPgRaChOS4HDOu3Srds7w7fSPie7jbPHzz+CLGrxs2TtMYtYB1lH5Bh6q1w7A==}
 
   '@types/bcrypt@6.0.0':
     resolution: {integrity: sha512-/oJGukuH3D2+D+3H4JWLaAsJ/ji86dhRidzZ/Od7H/i8g+aCmvkeCc6Ni/f9uxGLSQVCRZkX2/lqEFG2BvWtlQ==}
@@ -1261,6 +1267,8 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
+
+  '@tursodatabase/serverless@1.4.0': {}
 
   '@types/bcrypt@6.0.0':
     dependencies:
