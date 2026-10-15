@@ -1,4 +1,4 @@
-import { db, writerDb } from '@/configs/db.js'
+import { db } from '@/configs/db.js'
 
 export class SqlQueries {
   userPrepared = db.prepare(
@@ -31,27 +31,27 @@ export class SqlQueries {
 
   allUsersPrepared = db.prepare('SELECT id_user, username, role FROM users')
 
-  insertFestsPrepared = writerDb.prepare(
+  insertFestsPrepared = db.prepare(
     'INSERT INTO fests (id_fest, frequency, name, objective, description, init_date, end_date, address, fest_type, img) VALUES (@id_fest, @frequency, @name, @objective, @description, @init_date, @end_date, @address, @fest_type, @img)',
   )
 
-  deleteFestPrepared = writerDb.prepare('DELETE FROM fests WHERE id_fest = ?')
+  deleteFestPrepared = db.prepare('DELETE FROM fests WHERE id_fest = ?')
 
-  insertUserPrepared = writerDb.prepare(
+  insertUserPrepared = db.prepare(
     'INSERT INTO users (id_user, username, password, role) VALUES (@id_user, @username, @password, @role)',
   )
 
-  insertRefreshTokenPrepared = writerDb.prepare(
+  insertRefreshTokenPrepared = db.prepare(
     'INSERT INTO refresh_tokens (id_refresh_token, token, id_user) VALUES (@id_refresh_token, @token, @id_user)',
   )
 
-  deleteRefreshTokenPrepared = writerDb.prepare(
+  deleteRefreshTokenPrepared = db.prepare(
     'DELETE FROM refresh_tokens WHERE token = ?',
   )
 
-  deleteAllUserTokensPrepared = writerDb.prepare(
+  deleteAllUserTokensPrepared = db.prepare(
     'DELETE FROM refresh_tokens WHERE id_user = ?',
   )
 
-  deleteUserPrepared = writerDb.prepare('DELETE FROM users WHERE id_user = ?')
+  deleteUserPrepared = db.prepare('DELETE FROM users WHERE id_user = ?')
 }

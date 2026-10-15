@@ -5,7 +5,6 @@ import {
   UNAUTHORIZED_MESSAGES,
 } from '@/constants.js'
 import { BadRequestError, UnauthorizedError } from '@/errors/errors.js'
-import { SqliteModel } from '@/model/sqlite.js'
 import type {
   NewAdmin,
   NewEditor,
@@ -14,7 +13,8 @@ import type {
   Token,
   User,
 } from '@/types/users.js'
-import { trycatch } from '@/utilities/decorators.js'
+import type { Model } from '@/types/types.js'
+import { AsyncTrycatch } from '@/utilities/decorators.js'
 import { generateTokensPair } from '@/utilities/generate-tokens.js'
 import { Validator } from '@/utilities/validations.js'
 import type { UUID } from 'crypto'
@@ -22,9 +22,14 @@ import type { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 
 export class UsersController {
+  model: Model
+
+  constructor(model: Model) {
+    this.model = model
+  }
   // Cuando se hace el /refresh el que lo hace en el front es el server, por lo que hay que devolver las cookies en forma de respuesta para que con SSR se agreguen las nuevas cookies
-  @trycatch
-  static refreshToken(req: Request, res: Response) {
+  @AsyncTrycatch
+  async refreshToken(req: Request, res: Response) {
     const { refreshToken: cookieRefreshToken } = req.cookies
     const { userId, role } = jwt.verify(
       cookieRefreshToken,
@@ -35,9 +40,9 @@ export class UsersController {
 
     const [accessToken, refreshToken, tokenId] = generateTokensPair(payload)
 
-    SqliteModel.deleteRefreshToken(cookieRefreshToken)
+    await this.model.deleteRefreshToken(cookieRefreshToken)
 
-    const rowsChanged = SqliteModel.saveNewToken(
+    const rowsChanged = await this.model.saveNewToken(
       tokenId as string,
       refreshToken as string,
       userId,
@@ -49,8 +54,8 @@ export class UsersController {
     return res.json({ accessToken, refreshToken })
   }
 
-  @trycatch
-  static register(req: Request, res: Response) {
+  @AsyncTrycatch
+  async register(req: Request, res: Response) {
     const { authorization } = req.headers
 
     Validator.authorization(authorization)
@@ -59,31 +64,31 @@ export class UsersController {
 
     const { username, password, role } = Validator.newUser(registerData)
 
-    const existingUser = SqliteModel.getUser(username, password)
+    const existingUser = await this.model.getUser(username, password)
 
     if (existingUser) throw new BadRequestError('Este usuario ya existe')
 
-    const message = SqliteModel.register({ username, password, role })
+    const message = await this.model.register({ username, password, role })
     return res.status(201).json({ message })
   }
 
-  @trycatch
-  static login(req: Request, res: Response) {
+  @AsyncTrycatch
+  async login(req: Request, res: Response) {
     const { refreshToken: currentRefreshToken } = req.cookies
     const { username, password } = req.body
 
     if (currentRefreshToken) return res.status(302).end()
 
-    const { id_user: userId, role } = SqliteModel.getUser(
+    const { id_user: userId, role } = (await this.model.getUser(
       username,
       password,
-    ) as unknown as User<Role>
+    )) as unknown as User<Role>
 
     const payload = { userId, role }
 
     const [accessToken, refreshToken, tokenId] = generateTokensPair(payload)
 
-    const rowsChanged = SqliteModel.saveNewToken(
+    const rowsChanged = await this.model.saveNewToken(
       tokenId as string,
       refreshToken as string,
       userId,
@@ -108,47 +113,49 @@ export class UsersController {
       .json({ message: 'Iniciando sesión...' })
   }
 
-  @trycatch
-  static renderDashboard(req: Request, res: Response) {
+  @AsyncTrycatch
+  async renderDashboard(req: Request, res: Response) {
     const { refreshToken } = req.cookies
     if (!refreshToken)
       throw new UnauthorizedError(UNAUTHORIZED_MESSAGES.NEED_LOGIN)
 
-    const { id_user: id } = SqliteModel.getRefreshToken(refreshToken) as Token
-    const { username, role } = SqliteModel.getUserBy(
+    const { id_user: id } = (await this.model.getRefreshToken(
+      refreshToken,
+    )) as Token
+    const { username, role } = (await this.model.getUserBy(
       'id_user',
       id,
-    ) as User<Role>
+    )) as User<Role>
     res.json({ username, role })
   }
 
-  @trycatch
-  static getAllUsers(req: Request, res: Response) {
+  @AsyncTrycatch
+  async getAllUsers(req: Request, res: Response) {
     const { authorization } = req.headers
     Validator.authorization(authorization)
 
-    const users = SqliteModel.getAllUsers()
+    const users = await this.model.getAllUsers()
     return res.status(200).json(users)
   }
 
-  @trycatch
-  static logout(req: Request, res: Response) {
+  @AsyncTrycatch
+  async logout(req: Request, res: Response) {
     const currentToken = req.cookies?.['refreshToken']
-    SqliteModel.deleteRefreshToken(currentToken)
+    await this.model.deleteRefreshToken(currentToken)
     return res
       .clearCookie('refreshToken')
       .clearCookie('accessToken')
       .json({ message: 'Cerrando sesión...' })
   }
 
-  @trycatch
-  static delete(req: Request, res: Response) {
+  @AsyncTrycatch
+  async delete(req: Request, res: Response) {
     const { id } = req.params
     const { authorization } = req.headers
 
     Validator.authorization(authorization)
 
-    SqliteModel.deleteUser({ id } as { id: UUID })
+    await this.model.deleteUser({ id } as { id: UUID })
     res.status(204).json({})
   }
 }
