@@ -1,9 +1,21 @@
-import { dbOptions, dbPath } from '@/constants.js'
-import Database, { type Database as DbType } from 'better-sqlite3'
+import { connect, Connection } from '@tursodatabase/serverless'
 
-export const db: DbType = new Database(dbPath, {
-  ...dbOptions,
-  readonly: true,
-})
+const TURSO_DB_URL = process.env['TURSO_DB_URL'] ?? ''
+const TURSO_DB_WRITER_TOKEN = process.env['TURSO_DB_WRITER_TOKEN'] ?? ''
 
-export const writerDb: DbType = new Database(dbPath, dbOptions)
+const getDb = (): Connection => {
+  let cachedDb: Connection | undefined
+
+  if (cachedDb) return cachedDb
+
+  const newDbInstance = connect({
+    url: TURSO_DB_URL,
+    authToken: TURSO_DB_WRITER_TOKEN,
+  })
+
+  cachedDb = newDbInstance
+
+  return newDbInstance
+}
+
+export const db: Connection = getDb()
