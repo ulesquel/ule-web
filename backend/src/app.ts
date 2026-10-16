@@ -9,6 +9,8 @@ import express from 'express'
 
 const app = express()
 
+const apiV1 = '/api/v1'
+
 app.disable('x-powered-by')
 
 app.use(logger)
@@ -24,8 +26,8 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cloudinaryConfig)
 
-app.use('/fests', festRouter)
-app.use('/users', usersRouter)
+app.use(`${apiV1}/fests`, festRouter)
+app.use(`${apiV1}/users`, usersRouter)
 
 if (nodeEnv === 'dev') {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
